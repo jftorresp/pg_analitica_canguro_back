@@ -1,0 +1,726 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Analítica Canguro API",
+    "description": "Documentación de la API para los servicios que consumen las bases de datos en MongoDB para medidas de crecimiento",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "localhost:5000",
+  "basePath": "/api",
+  "tags": [
+    {
+      "name": "Medidas Crecimiento",
+      "description": "API para el modelo de medidas de crecimiento (Documento Principal)"
+    }
+  ],
+  "schemes": ["http"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/medidas/query": {
+      "post": {
+        "tags": ["Medidas Crecimiento"],
+        "summary": "POST Envía un objeto con los elementos para el query",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "body",
+            "description": "Objeto con el query a la base de datos. Se pueden consultar variables y variables por etapa, temas de interés y años",
+            "schema": {
+              "$ref": "#/definitions/Query"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/MedidasCrecimiento"
+            }
+          }
+        }
+      }
+    },
+    "/medidas/datos": {
+      "get": {
+        "tags": ["Medidas Crecimiento"],
+        "summary": "GET Todos los datos en la colección",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/MedidasCrecimiento"
+            }
+          }
+        }
+      }
+    },
+    "/medidas/vars": {
+      "get": {
+        "tags": ["Medidas Crecimiento"],
+        "summary": "GET Todas las variables dependiendo de la etapa o tema de interés",
+        "parameters": [
+          {
+            "name": "e",
+            "in": "query",
+            "description": "Etapa (ENTORNO, EMBARAZO, NACIMIENTO, 3M, 6M, 9M, 12M)",
+            "type": "string"
+          },
+          {
+            "name": "neuro",
+            "in": "query",
+            "description": "Tema de interés Neurología",
+            "type": "string"
+          },
+          {
+            "name": "vista",
+            "in": "query",
+            "description": "Tema de interés Vista",
+            "type": "string"
+          },
+          {
+            "name": "alimentacion",
+            "in": "query",
+            "description": "Tema de interés Alimentación",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/Atributos"
+            }
+          }
+        }
+      }
+    },
+    "/medidas/anios": {
+      "get": {
+        "tags": ["Medidas Crecimiento"],
+        "summary": "GET Todos los años que cubren los datos",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/Anios"
+            }
+          }
+        }
+      }
+    },
+    "/etapas": {
+      "get": {
+        "tags": ["Etapas"],
+        "summary": "GET Todas las etapas",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/Etapas"
+            }
+          }
+        }
+      }
+    },
+    "/etapas/crearEtapa": {
+      "post": {
+        "tags": ["Etapas"],
+        "summary": "POST Crear una etapa con su nombre",
+        "parameters": [
+          {
+            "nombre": "query",
+            "in": "body",
+            "description": "Crear una etapa con su nombre"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/Etapa"
+            }
+          }
+        }
+      }
+    },
+    "/temas": {
+      "get": {
+        "tags": ["Temas de interés"],
+        "summary": "GET Todos los temas de interés",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/Temas"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Anios": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "Etapa": {
+      "type": "object",
+      "required": ["_id"],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "nombre": {
+          "type": "string"
+        }
+      }
+    },
+    "Etapas": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Etapa"
+      }
+    },
+    "Temas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "Query": {
+      "type": "object",
+      "properties": {
+        "years": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ANOCAT": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "etapa": {
+          "type": "string"
+        },
+        "temas": {
+          "type:": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "vars": {
+          "type:": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Atributos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "MedidasCrecimiento": {
+      "required": ["_id"],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "CODE": {
+          "type": "integer"
+        },
+        "Centro": {
+          "type": "integer"
+        },
+        "codigooriginal": {
+          "type": "integer"
+        },
+        "estadovital": {
+          "type": "integer"
+        },
+        "muerteprimerano": {
+          "type": "integer"
+        },
+        "ANOCAT": {
+          "type": "integer"
+        },
+        "nivelmama": {
+          "type": "integer"
+        },
+        "nivelpapa": {
+          "type": "integer"
+        },
+        "embarazodeseado": {
+          "type": "integer"
+        },
+        "edadmama": {
+          "type": "integer"
+        },
+        "pesomama": {
+          "type": "integer"
+        },
+        "tallamama": {
+          "type": "integer"
+        },
+        "pesopapa": {
+          "type": "integer"
+        },
+        "tallapapa": {
+          "type": "integer"
+        },
+        "Embarazomultple": {
+          "type": "integer"
+        },
+        "numerocontrolprenatal": {
+          "type": "integer"
+        },
+        "pesoalnacer": {
+          "type": "integer"
+        },
+        "tallaalnacer": {
+          "type": "integer"
+        },
+        "pcalnacer": {
+          "type": "integer"
+        },
+        "sexo": {
+          "type": "integer"
+        },
+        "edadgestacional": {
+          "type": "integer"
+        },
+        "edadgestacional2": {
+          "type": "integer"
+        },
+        "classificacionlubchenco": {
+          "type": "integer"
+        },
+        "TotalDiasHospitalizacion": {
+          "type": "integer"
+        },
+        "toxemia": {
+          "type": "integer"
+        },
+        "UCI": {
+          "type": "integer"
+        },
+        "cesarea": {
+          "type": "integer"
+        },
+        "primipara": {
+          "type": "integer"
+        },
+        "trimestre": {
+          "type": "integer"
+        },
+        "VAR00002": {
+          "type": "integer"
+        },
+        "oftalmologiafinal": {
+          "type": "integer"
+        },
+        "ROP": {
+          "type": "integer"
+        },
+        "resoptometria": {
+          "type": "integer"
+        },
+        "audiometria": {
+          "type": "integer"
+        },
+        "edadalaentrada": {
+          "type": "integer"
+        },
+        "pesoalaentrada": {
+          "type": "integer"
+        },
+        "tallaalaentrada": {
+          "type": "integer"
+        },
+        "PCalaentrada": {
+          "type": "integer"
+        },
+        "edadgestacionalalaentrada": {
+          "type": "integer"
+        },
+        "edadgestacionalalaentrada2": {
+          "type": "integer"
+        },
+        "PesosalidaPC": {
+          "type": "integer"
+        },
+        "edadsalidaPC": {
+          "type": "integer"
+        },
+        "edadgestasalPC": {
+          "type": "integer"
+        },
+        "Infanib3m": {
+          "type": "integer"
+        },
+        "Infanib6m": {
+          "type": "integer"
+        },
+        "Infanib9m": {
+          "type": "integer"
+        },
+        "Infanib12m": {
+          "type": "integer"
+        },
+        "CD6": {
+          "type": "integer"
+        },
+        "CD12": {
+          "type": "integer"
+        },
+        "mes40": {
+          "type": "integer"
+        },
+        "mes3": {
+          "type": "integer"
+        },
+        "mes6": {
+          "type": "integer"
+        },
+        "mes9": {
+          "type": "integer"
+        },
+        "mes12": {
+          "type": "integer"
+        },
+        "alisalida": {
+          "type": "integer"
+        },
+        "Indexnutricion40sem": {
+          "type": "integer"
+        },
+        "Indexnutricion12meses": {
+          "type": "integer"
+        },
+        "oxigenoentrada": {
+          "type": "integer"
+        },
+        "percapitasalariominimo": {
+          "type": "integer"
+        },
+        "RCIUpesoFenton": {
+          "type": "integer"
+        },
+        "RCIUtalla": {
+          "type": "integer"
+        },
+        "RCIUPC": {
+          "type": "integer"
+        },
+        "RCIUpesoFentonentrada": {
+          "type": "integer"
+        },
+        "RCIUtallaentrada": {
+          "type": "integer"
+        },
+        "RCIUPCentrada": {
+          "type": "integer"
+        },
+        "RCIUfentonpesotalla": {
+          "type": "integer"
+        },
+        "RCIUfentonpesotallaPC": {
+          "type": "integer"
+        },
+        "CD66": {
+          "type": "integer"
+        },
+        "CD122": {
+          "type": "integer"
+        },
+        "tipoRCIU": {
+          "type": "integer"
+        },
+        "tipoRCIU2": {
+          "type": "integer"
+        },
+        "pesoalnacer_Normalizado": {
+          "type": "integer"
+        },
+        "pesoalaentrada_Normalizado": {
+          "type": "integer"
+        },
+        "fechaCreacion": {
+          "type": "date"
+        },
+        "Nutpcwho": {
+          "type": "object",
+          "properties": {
+            "sem40": {
+              "type": "integer"
+            },
+            "mes3": {
+              "type": "integer"
+            },
+            "mes6": {
+              "type": "integer"
+            },
+            "mes9": {
+              "type": "integer"
+            },
+            "mes12": {
+              "type": "integer"
+            }
+          }
+        },
+        "Nutpesowho": {
+          "type": "object",
+          "properties": {
+            "sem40": {
+              "type": "integer"
+            },
+            "mes3": {
+              "type": "integer"
+            },
+            "mes6": {
+              "type": "integer"
+            },
+            "mes9": {
+              "type": "integer"
+            },
+            "mes12": {
+              "type": "integer"
+            }
+          }
+        },
+        "Nuttallawho": {
+          "type": "object",
+          "properties": {
+            "sem40": {
+              "type": "integer"
+            },
+            "mes3": {
+              "type": "integer"
+            },
+            "mes6": {
+              "type": "integer"
+            },
+            "mes9": {
+              "type": "integer"
+            },
+            "mes12": {
+              "type": "integer"
+            }
+          }
+        },
+        "pc": {
+          "type": "object",
+          "properties": {
+            "sem40": {
+              "type": "integer"
+            },
+            "mes3": {
+              "type": "integer"
+            },
+            "mes6": {
+              "type": "integer"
+            },
+            "mes9": {
+              "type": "integer"
+            },
+            "mes12": {
+              "type": "integer"
+            },
+            "error": {
+              "type": "boolean"
+            },
+            "sem33": {
+              "type": "integer"
+            },
+            "outlier": {
+              "type": "boolean"
+            }
+          }
+        },
+        "talla": {
+          "type": "object",
+          "properties": {
+            "sem40": {
+              "type": "integer"
+            },
+            "mes3": {
+              "type": "integer"
+            },
+            "mes6": {
+              "type": "integer"
+            },
+            "mes9": {
+              "type": "integer"
+            },
+            "mes12": {
+              "type": "integer"
+            },
+            "error": {
+              "type": "boolean"
+            },
+            "sem33": {
+              "type": "integer"
+            },
+            "outlier": {
+              "type": "boolean"
+            }
+          }
+        },
+        "peso": {
+          "type": "object",
+          "properties": {
+            "sem40": {
+              "type": "integer"
+            },
+            "mes3": {
+              "type": "integer"
+            },
+            "mes6": {
+              "type": "integer"
+            },
+            "mes9": {
+              "type": "integer"
+            },
+            "mes12": {
+              "type": "integer"
+            },
+            "error": {
+              "type": "boolean"
+            },
+            "sem33": {
+              "type": "integer"
+            },
+            "outlier": {
+              "type": "boolean"
+            }
+          }
+        },
+        "alimentacion": {
+          "type": "object",
+          "properties": {
+            "sem40": {
+              "type": "integer"
+            },
+            "mes3": {
+              "type": "integer"
+            },
+            "mes6": {
+              "type": "integer"
+            },
+            "mes9": {
+              "type": "integer"
+            },
+            "mes12": {
+              "type": "integer"
+            }
+          }
+        },
+        "peso_normalizado": {
+          "type": "object",
+          "properties": {
+            "sem33": {
+              "type": "integer"
+            },
+            "sem40": {
+              "type": "integer"
+            },
+            "mes3": {
+              "type": "integer"
+            },
+            "mes6": {
+              "type": "integer"
+            },
+            "mes9": {
+              "type": "integer"
+            },
+            "mes12": {
+              "type": "integer"
+            }
+          }
+        },
+        "talla_normalizado": {
+          "type": "object",
+          "properties": {
+            "sem33": {
+              "type": "integer"
+            },
+            "sem40": {
+              "type": "integer"
+            },
+            "mes3": {
+              "type": "integer"
+            },
+            "mes6": {
+              "type": "integer"
+            },
+            "mes9": {
+              "type": "integer"
+            },
+            "mes12": {
+              "type": "integer"
+            }
+          }
+        },
+        "pc_normalizado": {
+          "type": "object",
+          "properties": {
+            "sem33": {
+              "type": "integer"
+            },
+            "sem40": {
+              "type": "integer"
+            },
+            "mes3": {
+              "type": "integer"
+            },
+            "mes6": {
+              "type": "integer"
+            },
+            "mes9": {
+              "type": "integer"
+            },
+            "mes12": {
+              "type": "integer"
+            }
+          }
+        },
+        "neurologia": {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "Medidas": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MedidasCrecimiento"
+      }
+    }
+  }
+}
