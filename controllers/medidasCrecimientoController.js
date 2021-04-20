@@ -37,7 +37,7 @@ export const getAllYears = asyncHandler(async (req, res) => {
   }
 });
 
-// getAllYears Función para obtener un array con todos los años que cubren los datos
+// getValuesByVar Función para obtener un array con todos los años que cubren los datos
 export const getValuesByVar = asyncHandler(async (req, res) => {
   const variable = req.params.var;
   const data = await medidasCrecimiento.distinct(variable);
@@ -805,6 +805,7 @@ export const getVarsStageTopic = asyncHandler(async (req, res) => {
   res.json(uniqueArray);
 });
 
+//getDictVar Función que dependiendo de la variable retorna la conversión a valores categóricos dependiendo del diccionario. Aplica para datoa nominales y ordinales
 export const getDictVar = asyncHandler(async (req, res) => {
   const variable = req.params.var;
 
@@ -1114,12 +1115,15 @@ export const getDictVar = asyncHandler(async (req, res) => {
   handleResponse(values, res);
 });
 
+//getDiscreteDist Función mapear la variabe discreta seleccionada y en el año específico en el formato para graficar
 export const getDiscreteDist = asyncHandler(async (req, res) => {
   const variable = req.query.variable;
+  const varsArray = [];
+  varsArray.push(variable);
   const anio = req.query.anio;
   const data = await medidasCrecimiento
     .find({ ANOCAT: anio })
-    .select(variable)
+    .select(varsArray)
     .lean();
   const distArray = [];
 
@@ -1130,6 +1134,50 @@ export const getDiscreteDist = asyncHandler(async (req, res) => {
       x: keys[i] ? keys[i] : 0,
       y: data.filter((obj) => obj[variable] === keys[i]).length,
     });
+  }
+
+  distArray.sort((a, b) => a.x - b.x);
+
+  handleResponse(distArray, res);
+});
+
+//getContinuosDist Función mapear la variabe continua seleccionada y en el año específico en el formato para graficar
+export const getContinuosDist = asyncHandler(async (req, res) => {
+  const variable = req.query.variable;
+  const varsArray = [];
+  varsArray.push(variable);
+  const anio = req.query.anio;
+  const data = await medidasCrecimiento
+    .find({ ANOCAT: anio })
+    .select(varsArray)
+    .lean();
+
+  var keys = [];
+
+  const distArray = [];
+
+  if (variable.includes(".")) {
+    var split = variable.split(".");
+    var first = split[0];
+    var second = split[1];
+
+    keys = [...new Set(data.map((element) => element[first][second]))];
+    for (let i = 0; i < keys.length; i++) {
+      distArray.push({
+        x: keys[i] ? keys[i] : 0,
+        y: data
+          .filter((obj) => !!obj[first])
+          .filter((obj) => obj[first][second] === keys[i]).length,
+      });
+    }
+  } else {
+    keys = [...new Set(data.map((element) => element[variable]))];
+    for (let i = 0; i < keys.length; i++) {
+      distArray.push({
+        x: keys[i] ? keys[i] : 0,
+        y: data.filter((obj) => obj[variable] === keys[i]).length,
+      });
+    }
   }
 
   distArray.sort((a, b) => a.x - b.x);

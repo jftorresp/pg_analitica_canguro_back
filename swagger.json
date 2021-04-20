@@ -14,7 +14,15 @@
   "tags": [
     {
       "name": "Medidas Crecimiento",
-      "description": "API para el modelo de medidas de crecimiento (Documento Principal)"
+      "description": "API para consultas relacionadas con las medidas de crecimiento (documento principal) y visualiación de datos"
+    },
+    {
+      "name": "Etapas",
+      "description": "API para consultas y operaciones relacionadas con las etapas"
+    },
+    {
+      "name": "Temas de Interés",
+      "description": "API para consultas y operaciones relacionadas con los temas de interés"
     }
   ],
   "schemes": ["http"],
@@ -42,6 +50,93 @@
             "schema": {
               "description": "Datos obtenidos correctamente",
               "$ref": "#/definitions/MedidasCrecimiento"
+            }
+          }
+        }
+      }
+    },
+    "/medidas/{id}": {
+      "get": {
+        "tags": ["Medidas Crecimiento"],
+        "summary": "GET Documento en la colección con el id especificado",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id del documento a consultar",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/MedidasCrecimiento"
+            }
+          }
+        }
+      }
+    },
+    "/medidas/query/{var}": {
+      "get": {
+        "tags": ["Medidas Crecimiento"],
+        "summary": "GET Todos los valores posibles para la variable especificada",
+        "parameters": [
+          {
+            "name": "var",
+            "in": "path",
+            "description": "Variable a consultar los posibles valores",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/medidas/dict/{var}": {
+      "get": {
+        "tags": ["Medidas Crecimiento"],
+        "summary": "GET Conversión a valores categóricos dependiendo del diccionario y variable especificada. Aplica para datos nominales y ordinales",
+        "parameters": [
+          {
+            "name": "var",
+            "in": "path",
+            "description": "Variable a consultar los valores categóricos",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "integer"
+                  },
+                  "valor": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           }
         }
@@ -118,6 +213,84 @@
         }
       }
     },
+    "/medidas/dist": {
+      "get": {
+        "tags": ["Medidas Crecimiento"],
+        "summary": "GET Distribución de datos para la variable discreta seleccionada en el año especificado",
+        "parameters": [
+          {
+            "name": "variable",
+            "in": "query",
+            "description": "Nombre de la variable",
+            "type": "string"
+          },
+          {
+            "name": "anio",
+            "in": "query",
+            "description": "Año a consultar",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer"
+                  },
+                  "y": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/medidas/cont": {
+      "get": {
+        "tags": ["Medidas Crecimiento"],
+        "summary": "GET Distribución de datos para la variable continua seleccionada en el año especificado",
+        "parameters": [
+          {
+            "name": "variable",
+            "in": "query",
+            "description": "Nombre de la variable",
+            "type": "string"
+          },
+          {
+            "name": "anio",
+            "in": "query",
+            "description": "Año a consultar",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer"
+                  },
+                  "y": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/etapas": {
       "get": {
         "tags": ["Etapas"],
@@ -156,16 +329,99 @@
         }
       }
     },
+    "/etapas/{id}": {
+      "delete": {
+        "tags": ["Etapas"],
+        "summary": "DELETE Etapa por id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id de la etapa a elminar",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "type": "object",
+              "properties": {
+                "msg": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/temas": {
       "get": {
-        "tags": ["Temas de interés"],
+        "tags": ["Temas de Interés"],
         "summary": "GET Todos los temas de interés",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
               "description": "Datos obtenidos correctamente",
-              "$ref": "#/definitions/Temas"
+              "$ref": "#/definitions/Tema"
+            }
+          }
+        }
+      }
+    },
+    "/temas/crearTema": {
+      "post": {
+        "tags": ["Temas de Interés"],
+        "summary": "POST Crear un tema de interés con su nombre",
+        "parameters": [
+          {
+            "nombre": "query",
+            "in": "body",
+            "description": "Crear una tema de interés con su nombre"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/Tema"
+            }
+          }
+        }
+      }
+    },
+    "/temas/{id}": {
+      "delete": {
+        "tags": ["Temas de Interés"],
+        "summary": "DELETE Tema de interés por id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id del tema de interés a elminar",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "type": "object",
+              "properties": {
+                "msg": {
+                  "type": "object"
+                }
+              }
             }
           }
         }
@@ -198,10 +454,23 @@
         "$ref": "#/definitions/Etapa"
       }
     },
+    "Tema": {
+      "type": "object",
+      "required": ["_id"],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "nombre": {
+          "type": "string"
+        }
+      }
+    },
     "Temas": {
       "type": "array",
       "items": {
-        "type": "string"
+        "$ref": "#/definitions/Tema"
       }
     },
     "Query": {

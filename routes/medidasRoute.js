@@ -7,6 +7,7 @@ import {
   getValuesByVar,
   getDictVar,
   getDiscreteDist,
+  getContinuosDist,
 } from "../controllers/medidasCrecimientoController.js";
 import express from "express";
 const router = express.Router();
@@ -23,7 +24,7 @@ router.route("/anios").get(getAllYears);
 // express router method to POST a query by stage, topics or years over the data
 router.route("/query").post(queryData);
 
-// express router method to POST a query by stage, topics or years over the data
+// express router method to GET all posible values for an specific var
 router.route("/query/:var").get(getValuesByVar);
 
 // express router method to POST a query by stage, topics or years over the data
@@ -31,6 +32,9 @@ router.route("/dict/:var").get(getDictVar);
 
 // express router method to POST a query by stage, topics or years over the data
 router.route("/dist").get(getDiscreteDist);
+
+// express router method to POST a query by stage, topics or years over the data
+router.route("/cont").get(getContinuosDist);
 
 // express router method to GET a document by id
 router.route("/:id").get(getDataById);
