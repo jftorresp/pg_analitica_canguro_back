@@ -55,6 +55,45 @@
         }
       }
     },
+    "/medidas/group": {
+      "post": {
+        "tags": ["Medidas Crecimiento"],
+        "summary": "POST Agrupa los datos por años y por los diferentes valores de una variable especificada",
+        "parameters": [
+          {
+            "name": "Años y variable a agrupar",
+            "in": "body",
+            "description": "Se envía un arreglo con los años y la variable a agrupar.",
+            "schema": {
+              "$ref": "#/definitions/Group"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/medidas/{id}": {
       "get": {
         "tags": ["Medidas Crecimiento"],
@@ -473,18 +512,30 @@
         "$ref": "#/definitions/Tema"
       }
     },
+    "Group": {
+      "type": "object",
+      "properties": {
+        "years": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "vars": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "Query": {
       "type": "object",
       "properties": {
         "years": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "ANOCAT": {
-                "type": "integer"
-              }
-            }
+            "type": "integer"
           }
         },
         "etapa": {

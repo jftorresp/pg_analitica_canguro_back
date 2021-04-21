@@ -1129,11 +1129,30 @@ export const getDiscreteDist = asyncHandler(async (req, res) => {
 
   const keys = [...new Set(data.map((element) => element[variable]))];
 
-  for (let i = 0; i < keys.length; i++) {
-    distArray.push({
-      x: keys[i] ? keys[i] : 0,
-      y: data.filter((obj) => obj[variable] === keys[i]).length,
-    });
+  if (variable.includes(".")) {
+    var split = variable.split(".");
+    var first = split[0];
+    var second = split[1];
+
+    for (let i = 0; i < keys.length; i++) {
+      if (keys[i]) {
+        distArray.push({
+          x: keys[i],
+          y: data
+            .filter((obj) => !!obj[first])
+            .filter((obj) => obj[first][second] === keys[i]).length,
+        });
+      }
+    }
+  } else {
+    for (let i = 0; i < keys.length; i++) {
+      if (keys[i]) {
+        distArray.push({
+          x: keys[i],
+          y: data.filter((obj) => obj[variable] === keys[i]).length,
+        });
+      }
+    }
   }
 
   distArray.sort((a, b) => a.x - b.x);
@@ -1163,20 +1182,24 @@ export const getContinuosDist = asyncHandler(async (req, res) => {
 
     keys = [...new Set(data.map((element) => element[first][second]))];
     for (let i = 0; i < keys.length; i++) {
-      distArray.push({
-        x: keys[i] ? keys[i] : 0,
-        y: data
-          .filter((obj) => !!obj[first])
-          .filter((obj) => obj[first][second] === keys[i]).length,
-      });
+      if (keys[i]) {
+        distArray.push({
+          x: keys[i],
+          y: data
+            .filter((obj) => !!obj[first])
+            .filter((obj) => obj[first][second] === keys[i]).length,
+        });
+      }
     }
   } else {
     keys = [...new Set(data.map((element) => element[variable]))];
     for (let i = 0; i < keys.length; i++) {
-      distArray.push({
-        x: keys[i] ? keys[i] : 0,
-        y: data.filter((obj) => obj[variable] === keys[i]).length,
-      });
+      if (keys[i]) {
+        distArray.push({
+          x: keys[i] ? keys[i] : 0,
+          y: data.filter((obj) => obj[variable] === keys[i]).length,
+        });
+      }
     }
   }
 
@@ -1184,3 +1207,91 @@ export const getContinuosDist = asyncHandler(async (req, res) => {
 
   handleResponse(distArray, res);
 });
+
+//groupByVarYears Función que agrupa los datos por años y por los diferentes valores de una variable
+export const groupByVarYears = asyncHandler(async (req, res) => {
+  // Parametros que entran al body, ambos son Arrays
+  const years = req.body.years;
+  const variables = req.body.vars;
+  const yearsArray = [];
+
+  for (let i = 0; i < years.length; i++) {
+    yearsArray.push({
+      ANOCAT: years[i],
+    });
+  }
+
+  const data = await medidasCrecimiento
+    .find({ $or: yearsArray }, "ANOCAT")
+    .select(variables)
+    .lean();
+
+  const dataNoFormat = [];
+
+  if (variables[0].includes(".")) {
+    var split = variables[0].split(".");
+    var first = split[0];
+    var second = split[1];
+    for (let i = 0; i < years.length; i++) {
+      dataNoFormat.push(
+        data
+          .filter((obj) => !!obj[first])
+          .filter(
+            (obj) =>
+              obj["ANOCAT"] == years[i] && checkNested(obj, first, second)
+          )
+          .map((char) => char[first][second])
+          .reduce(reducer, {})
+      );
+    }
+  } else {
+    for (let i = 0; i < years.length; i++) {
+      dataNoFormat.push(
+        data
+          .filter(
+            (obj) =>
+              obj["ANOCAT"] == years[i] && obj.hasOwnProperty(variables[0])
+          )
+          .map((char) => char[variables[0]])
+          .reduce(reducer, {})
+      );
+    }
+  }
+
+  var dataFormat = [];
+
+  for (let i = 0; i < dataNoFormat.length; i++) {
+    dataFormat.push({
+      label: years[i].toString(),
+      data: Object.values(dataNoFormat[i]),
+      backgroundColor: "#" + genRanHex(6),
+    });
+  }
+
+  dataFormat = dataFormat.sort((a, b) => a.label - b.label);
+
+  handleResponse(dataFormat, res);
+});
+
+// reducer Función para aplicar al reducir y obtener la suma de datos para un valor de una variable.
+const reducer = (map, val) => {
+  if (map[val] == null) {
+    map[val] = 1;
+  } else {
+    ++map[val];
+  }
+
+  return map;
+};
+
+// genRanHex Función que genera un número hexadecimal de 6 dígitos
+const genRanHex = (size) =>
+  [...Array(size)]
+    .map(() => Math.floor(Math.random() * 16).toString(16))
+    .join("");
+
+function checkNested(obj, level, ...rest) {
+  if (obj === undefined) return false;
+  if (rest.length == 0 && obj.hasOwnProperty(level)) return true;
+  return checkNested(obj[level], ...rest);
+}
