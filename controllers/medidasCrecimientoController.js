@@ -37,10 +37,35 @@ export const getAllYears = asyncHandler(async (req, res) => {
   }
 });
 
-// getValuesByVar Función para obtener un array con todos los años que cubren los datos
+// getValuesByVar Función para obtener un array con todos los valores posibles para esa variable
 export const getValuesByVar = asyncHandler(async (req, res) => {
   const variable = req.params.var;
   const data = await medidasCrecimiento.distinct(variable);
+
+  if (data) {
+    res.status(200).json(data);
+  } else {
+    res.status(404).json({ message: "Error fetching the data." });
+    res.status(404);
+    throw new Error("Error fetching the data.");
+  }
+});
+
+// getValuesByVar Función para obtener un array con todos los valores posibles para esa variable
+export const getValuesByVarYears = asyncHandler(async (req, res) => {
+  const years = req.body.years;
+  const variable = req.body.var;
+  const yearsArray = [];
+
+  for (let i = 0; i < years.length; i++) {
+    yearsArray.push({
+      ANOCAT: years[i],
+    });
+  }
+
+  const data = await medidasCrecimiento
+    .find({ $or: yearsArray }, "ANOCAT")
+    .distinct(variable);
 
   if (data) {
     res.status(200).json(data);
@@ -1275,6 +1300,9 @@ export const groupByVarYears = asyncHandler(async (req, res) => {
 
 // reducer Función para aplicar al reducir y obtener la suma de datos para un valor de una variable.
 const reducer = (map, val) => {
+  if (!map) {
+    map[val] = null;
+  }
   if (map[val] == null) {
     map[val] = 1;
   } else {
@@ -1295,3 +1323,287 @@ function checkNested(obj, level, ...rest) {
   if (rest.length == 0 && obj.hasOwnProperty(level)) return true;
   return checkNested(obj[level], ...rest);
 }
+
+//groupByVarYears Función que agrupa los datos por años y por los diferentes valores de una variable
+export const groupByVarYearsNumbers = asyncHandler(async (req, res) => {
+  // Parametros que entran al body, ambos son Arrays
+  const years = req.body.years;
+  const variables = req.body.vars;
+  const yearsArray = [];
+
+  for (let i = 0; i < years.length; i++) {
+    yearsArray.push({
+      ANOCAT: years[i],
+    });
+  }
+
+  const data = await medidasCrecimiento
+    .find({ $or: yearsArray }, "ANOCAT")
+    .select(variables)
+    .lean();
+
+  const dataTotal = await medidasCrecimiento.find({}).lean();
+
+  var keys = [
+    ...new Set(
+      dataTotal.map((element) => element[variables[0]]).sort((a, b) => a - b)
+    ),
+  ];
+  var keysAvailable = [
+    ...new Set(
+      data.map((element) => element[variables[0]]).sort((a, b) => a - b)
+    ),
+  ];
+
+  const dataNoFormat = [];
+
+  if (variables[0].includes(".")) {
+    var split = variables[0].split(".");
+    var first = split[0];
+    var second = split[1];
+    for (let i = 0; i < years.length; i++) {
+      dataNoFormat.push(
+        data
+          .filter((obj) => !!obj[first])
+          .filter(
+            (obj) =>
+              obj["ANOCAT"] == years[i] && checkNested(obj, first, second)
+          )
+          .map((char) => char[first][second])
+          .reduce(reducer, {})
+      );
+    }
+  } else {
+    for (let i = 0; i < years.length; i++) {
+      dataNoFormat.push(
+        data
+          .filter(
+            (obj) =>
+              obj["ANOCAT"] == years[i] && obj.hasOwnProperty(variables[0])
+          )
+          .map((char) => char[variables[0]])
+          .reduce(reducer, {})
+      );
+    }
+  }
+
+  var dataFormat = [];
+
+  for (let i = 0; i < dataNoFormat.length; i++) {
+    dataFormat.push({
+      label: years[i].toString(),
+      data: Object.values(dataNoFormat[i]),
+      fill: false,
+      borderColor: "#" + genRanHex(6),
+      borderWidth: 1,
+    });
+  }
+
+  dataFormat = dataFormat.sort((a, b) => a.label - b.label);
+
+  handleResponse(dataFormat, res);
+});
+
+export const parallelCoordinatesRCIU = asyncHandler(async (req, res) => {
+  const initialYear = req.query.year;
+  const tipoRCIU = req.query.rciu;
+  const etapa = req.query.etapa;
+  const finalYear = parseInt(initialYear) + 5;
+
+  var queryArray = [];
+
+  if (etapa == "NACIMIENTO") {
+    queryArray = [
+      "ANOCAT",
+      "edadgestacional",
+      "tipoRCIU",
+      "pesoalnacer",
+      "tallaalnacer",
+      "pcalnacer",
+      "sexo",
+    ];
+  } else if (etapa == "PMC") {
+    queryArray = [
+      "ANOCAT",
+      "edadgestacionalalaentrada",
+      "tipoRCIU",
+      "pesoalaentrada",
+      "tallaalaentrada",
+      "PCalaentrada",
+      "sexo",
+    ];
+  } else if (etapa == "40SEM") {
+    queryArray = [
+      "ANOCAT",
+      "edadgestacional",
+      "tipoRCIU",
+      "peso.sem40",
+      "talla.sem40",
+      "pc.sem40",
+      "sexo",
+    ];
+  } else if (etapa == "3M") {
+    queryArray = [
+      "ANOCAT",
+      "edadgestacional",
+      "tipoRCIU",
+      "peso.mes3",
+      "talla.mes3",
+      "pc.mes3",
+      "sexo",
+    ];
+  } else if (etapa == "6M") {
+    queryArray = [
+      "ANOCAT",
+      "edadgestacional",
+      "tipoRCIU",
+      "peso.mes6",
+      "talla.mes6",
+      "pc.mes6",
+      "sexo",
+    ];
+  } else if (etapa == "9M") {
+    queryArray = [
+      "ANOCAT",
+      "edadgestacional",
+      "tipoRCIU",
+      "peso.mes9",
+      "talla.mes9",
+      "pc.mes9",
+      "sexo",
+    ];
+  } else if (etapa == "12M") {
+    queryArray = [
+      "ANOCAT",
+      "edadgestacional",
+      "tipoRCIU",
+      "peso.mes12",
+      "talla.mes12",
+      "pc.mes12",
+      "sexo",
+    ];
+  }
+
+  const data = await medidasCrecimiento
+    .find({
+      edadgestacional: { $lte: 35 },
+      ANOCAT: { $gte: initialYear, $lte: finalYear },
+      tipoRCIU: tipoRCIU,
+    })
+    .select(queryArray)
+    .lean();
+
+  const dataParallel = [];
+
+  for (let i = 0; i < data.length; i++) {
+    if (etapa == "NACIMIENTO") {
+      dataParallel.push({
+        "edad gestacional": data[i].edadgestacional,
+        "peso nacer (gr)": data[i].pesoalnacer,
+        "talla nacer (cm)": data[i].tallaalnacer,
+        "pc nacer (cm)": data[i].pcalnacer,
+        // color: Math.floor(Math.random() * (10 - 1 + 1) + 1),
+      });
+    } else if (etapa == "PMC") {
+      dataParallel.push({
+        "edad gestacional entrada": data[i].edadgestacionalalaentrada,
+        "peso entrada (gr)": data[i].pesoalaentrada,
+        "talla entrada (cm)": data[i].tallaalaentrada,
+        "pc entrada (cm)": data[i].PCalaentrada,
+        // color: Math.floor(Math.random() * (10 - 1 + 1) + 1),
+      });
+    } else if (etapa == "40SEM") {
+      dataParallel.push({
+        "edad gestacional": data[i].edadgestacional,
+        "peso sem40 (gr)": data[i]["peso"]["sem40"],
+        "talla sem40 (cm)": data[i]["talla"]["sem40"],
+        "pc sem40 (cm)": data[i]["pc"]["sem40"],
+        // color: Math.floor(Math.random() * (10 - 1 + 1) + 1),
+      });
+    } else if (etapa == "3M") {
+      dataParallel.push({
+        "edad gestacional": data[i].edadgestacional,
+        "peso mes3 (gr)": data[i]["peso"]["mes3"],
+        "talla mes3 (cm)": data[i]["talla"]["mes3"],
+        "pc mes3 (cm)": data[i]["pc"]["mes3"],
+        // color: Math.floor(Math.random() * (10 - 1 + 1) + 1),
+      });
+    } else if (etapa == "6M") {
+      dataParallel.push({
+        "edad gestacional": data[i].edadgestacional,
+        "peso mes6 (gr)": data[i]["peso"]["mes6"],
+        "talla mes6 (cm)": data[i]["talla"]["mes6"],
+        "pc mes6 (cm)": data[i]["pc"]["mes6"],
+        // color: Math.floor(Math.random() * (10 - 1 + 1) + 1),
+      });
+    } else if (etapa == "9M") {
+      dataParallel.push({
+        "edad gestacional": data[i].edadgestacional,
+        "peso mes9 (gr)": data[i]["peso"]["mes9"],
+        "talla mes9 (cm)": data[i]["talla"]["mes9"],
+        "pc mes9 (cm)": data[i]["pc"]["mes9"],
+        // color: Math.floor(Math.random() * (10 - 1 + 1) + 1),
+      });
+    } else if (etapa == "12M") {
+      dataParallel.push({
+        "edad gestacional": data[i].edadgestacional,
+        "peso mes12 (gr)": data[i]["peso"]["mes12"],
+        "talla mes12 (cm)": data[i]["talla"]["mes12"],
+        "pc mes12 (cm)": data[i]["pc"]["mes12"],
+        // color: Math.floor(Math.random() * (10 - 1 + 1) + 1),
+      });
+    }
+  }
+
+  handleResponse(dataParallel, res);
+});
+
+export const parallerCoordinatesVariables = asyncHandler(async (req, res) => {
+  const variables = [];
+
+  variables.push({
+    key: "edadGestacional",
+    type: "linear",
+    min: "auto",
+    max: "auto",
+    ticksPosition: "before",
+    legend: "edad gestacional",
+    legendPosition: "start",
+    legendOffset: 20,
+  });
+
+  variables.push({
+    key: "pesoAlNacer",
+    type: "linear",
+    min: "auto",
+    max: "auto",
+    ticksPosition: "before",
+    legend: "peso al nacer (gr)",
+    legendPosition: "start",
+    legendOffset: 20,
+  });
+
+  variables.push({
+    key: "tallaAlNacer",
+    type: "linear",
+    min: "auto",
+    max: "auto",
+    ticksPosition: "before",
+    legend: "talla al nacer (cm)",
+    legendPosition: "start",
+    legendOffset: 20,
+  });
+
+  variables.push({
+    key: "pcAlNacer",
+    type: "linear",
+    min: "auto",
+    max: "auto",
+    ticksPosition: "before",
+    legend: "PC al nacer (cm)",
+    legendPosition: "start",
+    legendOffset: 20,
+  });
+
+  handleResponse(variables, res);
+});
