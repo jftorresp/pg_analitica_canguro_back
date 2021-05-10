@@ -13,6 +13,23 @@ import {
   getValuesByVarYears,
   parallelCoordinatesRCIU,
   parallerCoordinatesVariables,
+  RCIUAbsoluteFrequency,
+  RCIURelativeFrequency,
+  RCIURelativeFrequencyPremature,
+  RCIUAbsInitialFrequencyPremature,
+  RCIUAFMedidaMadre,
+  RCIUAFPromMedidaMadre,
+  RCIURFEstudiosMadre,
+  RCIUAntEntornoVars,
+  RCIURFIngresosMadre,
+  RCIUFreqCesarea,
+  RCIUFreqGender,
+  RCIUFreqEdadGes,
+  RCIUFreqEGPremTerm,
+  RCIUAFPromMedidaBebeNacer,
+  RCIURCEUFreq,
+  RCIUAntNacimientoVars,
+  GenderBaseData,
 } from "../controllers/medidasCrecimientoController.js";
 import express from "express";
 const router = express.Router();
@@ -47,6 +64,40 @@ router.route("/dist").get(getDiscreteDist);
 
 // express router method to GET the distirbution of data of a continuous variable
 router.route("/cont").get(getContinuosDist);
+
+router.route("/RCIUaf").get(RCIUAbsoluteFrequency);
+
+router.route("/RCIUrf").get(RCIURelativeFrequency);
+
+router.route("/RCIUInitrfprem").post(RCIURelativeFrequencyPremature);
+
+router.route("/RCIUInitafprem").post(RCIUAbsInitialFrequencyPremature);
+
+router.route("/RCIUAFMedidaMadre").get(RCIUAFMedidaMadre);
+
+router.route("/RCIURFEstudiosMadre").get(RCIURFEstudiosMadre);
+
+router.route("/RCIURFIngresosMadre").get(RCIURFIngresosMadre);
+
+router.route("/RCIUFreqCesarea").get(RCIUFreqCesarea);
+
+router.route("/RCIUFreqGender").get(RCIUFreqGender);
+
+router.route("/RCIUFreqEdadGes").get(RCIUFreqEdadGes);
+
+router.route("/RCIUFreqEGPremTerm").get(RCIUFreqEGPremTerm);
+
+router.route("/RCIURCEUFreq").get(RCIURCEUFreq);
+
+router.route("/RCIUAntNacimientoVars").get(RCIUAntNacimientoVars);
+
+router.route("/GenderBaseData").get(GenderBaseData);
+
+router.route("/RCIUAFPromMedidaBebeNacer").get(RCIUAFPromMedidaBebeNacer);
+
+router.route("/RCIUAFPromMedidaMadre").get(RCIUAFPromMedidaMadre);
+
+router.route("/RCIUAntEntornoVars").get(RCIUAntEntornoVars);
 
 // express router method to POST a query in order to group data by years and a variable
 router.route("/group").post(groupByVarYears);
