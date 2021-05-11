@@ -1404,6 +1404,140 @@ export const groupByVarYearsNumbers = asyncHandler(async (req, res) => {
   handleResponse(dataFormat, res);
 });
 
+export const parallelCoordsPMC = asyncHandler(async (req, res) => {
+  const initialYear = req.query.inicio;
+  const finalYear = req.query.fin;
+  const graph = req.query.graph;
+  const yearsInterval = [];
+
+  const data = await medidasCrecimiento
+    .find({
+      ANOCAT: { $gte: initialYear, $lte: finalYear },
+      edadgestacional: { $lt: 37 },
+    })
+    .select([
+      "ANOCAT",
+      "RCIUpesoFenton",
+      "RCIUpesoFentonentrada",
+      "pesoalaentrada",
+      "tallaalaentrada",
+      "PCalaentrada",
+      "edadgestacionalalaentrada",
+    ])
+    .lean();
+
+  for (let index = initialYear; index < parseInt(finalYear) + 1; index++) {
+    yearsInterval.push(index.toString());
+  }
+
+  const dataParallel = [];
+
+  for (let i = 0; i < yearsInterval.length; i++) {
+    dataParallel.push({
+      año: yearsInterval[i],
+      EG:
+        Math.round(
+          (data
+            .filter(
+              (obj) =>
+                obj.ANOCAT == yearsInterval[i] &&
+                (graph == "1"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 1
+                  : graph == "2"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 0
+                  : obj.RCIUpesoFenton == 1)
+            )
+            .reduce((a, b) => a + (b["edadgestacionalalaentrada"] || 0), 0) /
+            data.filter(
+              (obj) =>
+                obj.ANOCAT == yearsInterval[i] &&
+                (graph == "1"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 1
+                  : graph == "2"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 0
+                  : obj.RCIUpesoFenton == 1)
+            ).length) *
+            100
+        ) / 100,
+      "peso (gr)":
+        Math.round(
+          (data
+            .filter(
+              (obj) =>
+                obj.ANOCAT == yearsInterval[i] &&
+                (graph == "1"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 1
+                  : graph == "2"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 0
+                  : obj.RCIUpesoFenton == 1)
+            )
+            .reduce((a, b) => a + (b["pesoalaentrada"] || 0), 0) /
+            data.filter(
+              (obj) =>
+                obj.ANOCAT == yearsInterval[i] &&
+                (graph == "1"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 1
+                  : graph == "2"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 0
+                  : obj.RCIUpesoFenton == 1)
+            ).length) *
+            100
+        ) / 100,
+      "talla (cm)":
+        Math.round(
+          (data
+            .filter(
+              (obj) =>
+                obj.ANOCAT == yearsInterval[i] &&
+                (graph == "1"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 1
+                  : graph == "2"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 0
+                  : obj.RCIUpesoFenton == 1)
+            )
+            .reduce((a, b) => a + (b["tallaalaentrada"] || 0), 0) /
+            data.filter(
+              (obj) =>
+                obj.ANOCAT == yearsInterval[i] &&
+                (graph == "1"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 1
+                  : graph == "2"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 0
+                  : obj.RCIUpesoFenton == 1)
+            ).length) *
+            100
+        ) / 100,
+      "pc (cm)":
+        Math.round(
+          (data
+            .filter(
+              (obj) =>
+                obj.ANOCAT == yearsInterval[i] &&
+                (graph == "1"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 1
+                  : graph == "2"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 0
+                  : obj.RCIUpesoFenton == 1)
+            )
+            .reduce((a, b) => a + (b["PCalaentrada"] || 0), 0) /
+            data.filter(
+              (obj) =>
+                obj.ANOCAT == yearsInterval[i] &&
+                (graph == "1"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 1
+                  : graph == "2"
+                  ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 0
+                  : obj.RCIUpesoFenton == 1)
+            ).length) *
+            100
+        ) / 100,
+      // color: Math.floor(Math.random() * (10 - 1 + 1) + 1),
+    });
+  }
+
+  handleResponse(dataParallel, res);
+});
+
 export const parallelCoordinatesRCIU = asyncHandler(async (req, res) => {
   const initialYear = req.query.year;
   const tipoRCIU = req.query.rciu;
@@ -2735,7 +2869,7 @@ export const RCIUFreqGender = asyncHandler(async (req, res) => {
 
   dataVis.axisX = {
     labelFontFamily: "arial",
-    interval: 1,
+    interval: 5,
   };
   dataVis.axisY = {
     labelFontFamily: "arial",
@@ -3460,4 +3594,672 @@ export const GenderBaseData = asyncHandler(async (req, res) => {
     ) / 100;
 
   handleResponse(dataResponse, res);
+});
+
+export const RCIUFreqDiasH = asyncHandler(async (req, res) => {
+  const initialYear = req.query.inicio;
+  const finalYear = req.query.fin;
+  const yearsInterval = [];
+
+  const data = await medidasCrecimiento
+    .find({
+      ANOCAT: { $gte: initialYear, $lte: finalYear },
+    })
+    .select([
+      "ANOCAT",
+      "RCIUpesoFenton",
+      "edadgestacional",
+      "TotalDiasHospitalizacion",
+    ])
+    .lean();
+
+  for (let index = initialYear; index < parseInt(finalYear) + 1; index++) {
+    yearsInterval.push(index.toString());
+  }
+
+  const dataVis = {};
+  const dataWith = [];
+  const dataWithout = [];
+  const datasets = [];
+
+  dataWith.push(
+    Math.round(
+      (data
+        .filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 1 &&
+            obj.edadgestacional <= 32
+        )
+        .reduce((a, b) => a + (b["TotalDiasHospitalizacion"] || 0), 0) /
+        data.filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 1 &&
+            obj.edadgestacional <= 32
+        ).length) *
+        100
+    ) / 100
+  );
+
+  dataWith.push(
+    Math.round(
+      (data
+        .filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 1 &&
+            obj.edadgestacional >= 33 &&
+            obj.edadgestacional <= 34
+        )
+        .reduce((a, b) => a + (b["TotalDiasHospitalizacion"] || 0), 0) /
+        data.filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 1 &&
+            obj.edadgestacional >= 33 &&
+            obj.edadgestacional <= 34
+        ).length) *
+        100
+    ) / 100
+  );
+
+  dataWith.push(
+    Math.round(
+      (data
+        .filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 1 &&
+            obj.edadgestacional >= 34 &&
+            obj.edadgestacional < 37
+        )
+        .reduce((a, b) => a + (b["TotalDiasHospitalizacion"] || 0), 0) /
+        data.filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 1 &&
+            obj.edadgestacional >= 34 &&
+            obj.edadgestacional < 37
+        ).length) *
+        100
+    ) / 100
+  );
+
+  dataWith.push(
+    Math.round(
+      (data
+        .filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 1 &&
+            obj.edadgestacional >= 37
+        )
+        .reduce((a, b) => a + (b["TotalDiasHospitalizacion"] || 0), 0) /
+        data.filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 1 &&
+            obj.edadgestacional >= 37
+        ).length) *
+        100
+    ) / 100
+  );
+
+  dataWithout.push(
+    Math.round(
+      (data
+        .filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 0 &&
+            obj.edadgestacional <= 32
+        )
+        .reduce((a, b) => a + (b["TotalDiasHospitalizacion"] || 0), 0) /
+        data.filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 0 &&
+            obj.edadgestacional <= 32
+        ).length) *
+        100
+    ) / 100
+  );
+
+  dataWithout.push(
+    Math.round(
+      (data
+        .filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 0 &&
+            obj.edadgestacional >= 33 &&
+            obj.edadgestacional <= 34
+        )
+        .reduce((a, b) => a + (b["TotalDiasHospitalizacion"] || 0), 0) /
+        data.filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 0 &&
+            obj.edadgestacional >= 33 &&
+            obj.edadgestacional <= 34
+        ).length) *
+        100
+    ) / 100
+  );
+
+  dataWithout.push(
+    Math.round(
+      (data
+        .filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 0 &&
+            obj.edadgestacional >= 34 &&
+            obj.edadgestacional < 37
+        )
+        .reduce((a, b) => a + (b["TotalDiasHospitalizacion"] || 0), 0) /
+        data.filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 0 &&
+            obj.edadgestacional >= 34 &&
+            obj.edadgestacional < 37
+        ).length) *
+        100
+    ) / 100
+  );
+
+  dataWithout.push(
+    Math.round(
+      (data
+        .filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 0 &&
+            obj.edadgestacional >= 37
+        )
+        .reduce((a, b) => a + (b["TotalDiasHospitalizacion"] || 0), 0) /
+        data.filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 0 &&
+            obj.edadgestacional >= 37
+        ).length) *
+        100
+    ) / 100
+  );
+
+  datasets.push({
+    label: "con RCIU",
+    data: dataWith,
+    backgroundColor: "#0E7FA6",
+  });
+
+  datasets.push({
+    label: "sin RCIU",
+    data: dataWithout,
+    backgroundColor: "#70D6BC",
+  });
+
+  dataVis.labels = [
+    "< 32 semanas",
+    "33-34 semanas",
+    "34-37 semanas",
+    "> 37 semanas",
+  ];
+  dataVis.datasets = datasets;
+
+  handleResponse(dataVis, res);
+});
+
+export const RCIUFreqUCI = asyncHandler(async (req, res) => {
+  const initialYear = req.query.inicio;
+  const finalYear = req.query.fin;
+  const isPremature = req.query.prem;
+  const yearsInterval = [];
+
+  const data = await medidasCrecimiento
+    .find({
+      ANOCAT: { $gte: initialYear, $lte: finalYear },
+      edadgestacional: isPremature == "true" ? { $lt: 37 } : { $gt: 37 },
+    })
+    .select(["ANOCAT", "RCIUpesoFenton", "UCI"])
+    .lean();
+
+  for (let index = initialYear; index < parseInt(finalYear) + 1; index++) {
+    yearsInterval.push(index.toString());
+  }
+
+  const size = data.length;
+
+  const dataPoints1 = [];
+  const dataPoints2 = [];
+  const dataVis = {};
+
+  dataVis.colorSet =
+    isPremature == "true" ? "customColorSetPrem" : "customColorSetTerm";
+
+  dataVis.axisX = {
+    labelFontFamily: "arial",
+    interval: 5,
+    valueFormatString: "####",
+  };
+  dataVis.axisY = {
+    labelFontFamily: "arial",
+    titleFontFamily: "arial",
+    title: "Cantidad",
+  };
+
+  dataVis.toolTip = {
+    fontFamily: "arial",
+    shared: true,
+  };
+
+  dataVis.zoomEnabled = true;
+  dataVis.zoomType = "xy";
+
+  for (let i = 0; i < yearsInterval.length; i++) {
+    dataPoints1.push({
+      x: parseInt(yearsInterval[i]),
+      y: data.filter(
+        (obj) =>
+          obj.ANOCAT == yearsInterval[i] &&
+          obj.UCI == 1 &&
+          obj.RCIUpesoFenton == 1
+      ).length,
+      relative:
+        data.filter(
+          (obj) =>
+            obj.ANOCAT == yearsInterval[i] &&
+            obj.UCI == 1 &&
+            obj.RCIUpesoFenton == 1
+        ).length / size,
+    });
+
+    dataPoints2.push({
+      x: parseInt(yearsInterval[i]),
+      y: data.filter(
+        (obj) =>
+          obj.ANOCAT == yearsInterval[i] &&
+          obj.UCI == 1 &&
+          obj.RCIUpesoFenton == 0
+      ).length,
+      relative:
+        data.filter(
+          (obj) =>
+            obj.ANOCAT == yearsInterval[i] &&
+            obj.UCI == 1 &&
+            obj.RCIUpesoFenton == 0
+        ).length / size,
+    });
+  }
+
+  dataVis.data = [];
+  // dataVis.height = 140;
+
+  dataVis.legend = {
+    horizontalAlign: "top",
+    verticalAlign: "top",
+    fontFamily: "arial",
+  };
+
+  dataVis.data.push({
+    type: "stackedBar",
+    name: isPremature == "true" ? "con RCIU prematuros" : "con RCIU a término",
+    showInLegend: true,
+    dataPoints: dataPoints1,
+  });
+
+  dataVis.data.push({
+    type: "stackedBar",
+    name: isPremature == "true" ? "sin RCIU prematuros" : "sin RCIU a término",
+    showInLegend: true,
+    dataPoints: dataPoints2,
+  });
+
+  handleResponse(dataVis, res);
+});
+
+export const RCIUFreqEGEntrada = asyncHandler(async (req, res) => {
+  const initialYear = req.query.inicio;
+  const finalYear = req.query.fin;
+  const isEntrada = req.query.entrada;
+  const yearsInterval = [];
+
+  const data = await medidasCrecimiento
+    .find({
+      ANOCAT: { $gte: initialYear, $lte: finalYear },
+    })
+    .select([
+      "ANOCAT",
+      "RCIUpesoFenton",
+      "edadgestacionalalaentrada",
+      "edadsalidaPC",
+    ])
+    .lean();
+
+  for (let index = initialYear; index < parseInt(finalYear) + 1; index++) {
+    yearsInterval.push(index.toString());
+  }
+
+  const dataPoints1 = [];
+  const dataPoints2 = [];
+
+  const dataVis = {};
+  dataVis.colorSet =
+    isEntrada == "true" ? "customColorSetPrem" : "customColorSetTerm";
+  dataVis.axisX = {
+    title: "Años",
+    titleFontFamily: "arial",
+    labelFontFamily: "arial",
+    titleFontStyle: "bold",
+  };
+  dataVis.axisY = {
+    title:
+      isEntrada == "true"
+        ? "Promedio edad gestacional entrada"
+        : "Promedio edad gestacional salida",
+    titleFontFamily: "arial",
+    labelFontFamily: "arial",
+    titleFontStyle: "bold",
+  };
+
+  dataVis.toolTip = {
+    fontFamily: "arial",
+  };
+
+  dataVis.zoomEnabled = true;
+  dataVis.zoomType = "xy";
+
+  for (let i = 0; i < yearsInterval.length; i++) {
+    dataPoints1.push({
+      x: i,
+      y:
+        data
+          .filter(
+            (obj) => obj.ANOCAT == yearsInterval[i] && obj.RCIUpesoFenton == 1
+          )
+          .reduce(
+            (a, b) =>
+              a +
+              (b[
+                isEntrada == "true"
+                  ? "edadgestacionalalaentrada"
+                  : "edadsalidaPC"
+              ] || 0),
+            0
+          ) /
+        data.filter(
+          (obj) => obj.ANOCAT == yearsInterval[i] && obj.RCIUpesoFenton == 1
+        ).length,
+    });
+
+    dataPoints2.push({
+      x: i,
+      y:
+        data
+          .filter(
+            (obj) => obj.ANOCAT == yearsInterval[i] && obj.RCIUpesoFenton == 0
+          )
+          .reduce(
+            (a, b) =>
+              a +
+              (b[
+                isEntrada == "true"
+                  ? "edadgestacionalalaentrada"
+                  : "edadsalidaPC"
+              ] || 0),
+            0
+          ) /
+        data.filter(
+          (obj) => obj.ANOCAT == yearsInterval[i] && obj.RCIUpesoFenton == 0
+        ).length,
+    });
+  }
+
+  dataVis.data = [];
+
+  dataVis.height = 300;
+
+  dataVis.legend = {
+    horizontalAlign: "top",
+    verticalAlign: "top",
+    fontFamily: "arial",
+  };
+
+  dataVis.data.push({
+    type: "spline",
+    markerSize: 5,
+    connectNullData: true,
+    name: "con RCIU",
+    showInLegend: true,
+    dataPoints: dataPoints1,
+  });
+
+  dataVis.data.push({
+    type: "spline",
+    markerSize: 5,
+    connectNullData: true,
+    name: "sin RCIU",
+    showInLegend: true,
+    dataPoints: dataPoints2,
+  });
+
+  handleResponse(dataVis, res);
+});
+
+export const RCIUPromPesoPMC = asyncHandler(async (req, res) => {
+  const initialYear = req.query.inicio;
+  const finalYear = req.query.fin;
+  const graph = req.query.graph;
+  const yearsInterval = [];
+
+  const data = await medidasCrecimiento
+    .find({
+      ANOCAT: { $gte: initialYear, $lte: finalYear },
+    })
+    .select([
+      "ANOCAT",
+      "RCIUpesoFenton",
+      "RCIUpesoFentonentrada",
+      "edadgestacional",
+      "pesoalaentrada",
+      "PesosalidaPC",
+    ])
+    .lean();
+
+  for (let index = initialYear; index < parseInt(finalYear) + 1; index++) {
+    yearsInterval.push(index.toString());
+  }
+
+  const dataVis = {};
+  const dataEntrada = [];
+  const dataSalida = [];
+  const datasets = [];
+
+  for (let i = 0; i < yearsInterval.length; i++) {
+    dataEntrada.push(
+      Math.round(
+        (data
+          .filter(
+            (obj) =>
+              obj.ANOCAT == yearsInterval[i] &&
+              (graph == "1"
+                ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 1
+                : graph == "2"
+                ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 0
+                : obj.RCIUpesoFenton == 1)
+          )
+          .reduce((a, b) => a + (b["pesoalaentrada"] || 0), 0) /
+          data.filter(
+            (obj) =>
+              obj.ANOCAT == yearsInterval[i] &&
+              (graph == "1"
+                ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 1
+                : graph == "2"
+                ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 0
+                : obj.RCIUpesoFenton == 1)
+          ).length) *
+          100
+      ) / 100
+    );
+
+    dataSalida.push(
+      Math.round(
+        (data
+          .filter(
+            (obj) =>
+              obj.ANOCAT == yearsInterval[i] &&
+              (graph == "1"
+                ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 1
+                : graph == "2"
+                ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 0
+                : obj.RCIUpesoFenton == 1)
+          )
+          .reduce((a, b) => a + (b["PesosalidaPC"] || 0), 0) /
+          data.filter(
+            (obj) =>
+              obj.ANOCAT == yearsInterval[i] &&
+              (graph == "1"
+                ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 1
+                : graph == "2"
+                ? obj.RCIUpesoFenton == 0 && obj.RCIUpesoFentonentrada == 0
+                : obj.RCIUpesoFenton == 1)
+          ).length) *
+          100
+      ) / 100
+    );
+  }
+
+  datasets.push({
+    label: "Peso entrada programa canguro",
+    data: dataEntrada,
+    backgroundColor:
+      graph == 1 ? "#0E7FA6" : graph == 2 ? "#FF955B" : "#e7e72d",
+  });
+
+  datasets.push({
+    label: "Peso salida programa canguro",
+    data: dataSalida,
+    backgroundColor:
+      graph == 1 ? "#70D6BC" : graph == 2 ? "#A6330A" : "#1fd567",
+  });
+
+  dataVis.labels = yearsInterval;
+  dataVis.datasets = datasets;
+
+  handleResponse(dataVis, res);
+});
+
+export const RCIUOxiEntrada = asyncHandler(async (req, res) => {
+  const initialYear = req.query.inicio;
+  const finalYear = req.query.fin;
+  const yearsInterval = [];
+
+  const data = await medidasCrecimiento
+    .find({ ANOCAT: { $gte: initialYear, $lte: finalYear }, oxigenoentrada: 1 })
+    .select(["ANOCAT", "RCIUpesoFenton", "oxigenoentrada"])
+    .lean();
+
+  for (let index = initialYear; index < parseInt(finalYear) + 1; index++) {
+    yearsInterval.push(index.toString());
+  }
+
+  const dataPoints = [];
+  const dataVis = {};
+  dataVis.colorSet = "customColorSetPrem";
+  dataVis.axisX = {
+    title: "Presencia de RCIU",
+    titleFontFamily: "arial",
+    labelFontFamily: "arial",
+    titleFontStyle: "bold",
+  };
+  dataVis.axisY = {
+    title: "Número de bebés",
+    titleFontFamily: "arial",
+    labelFontFamily: "arial",
+    titleFontStyle: "bold",
+  };
+
+  dataVis.toolTip = {
+    content: "{label}: {y} neonatos ({relative}%)",
+    fontFamily: "arial",
+  };
+
+  const size = data.length;
+
+  dataVis.zoomEnabled = true;
+  dataVis.zoomType = "xy";
+
+  dataPoints.push({
+    label: "con RCIU",
+    y: data.filter(
+      (obj) =>
+        obj.ANOCAT >= initialYear &&
+        obj.ANOCAT <= finalYear &&
+        obj.RCIUpesoFenton == 1
+    ).length,
+    relative:
+      Math.round(
+        (data.filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 1
+        ).length /
+          size) *
+          100 *
+          100
+      ) / 100,
+  });
+
+  dataPoints.push({
+    label: "sin RCIU",
+    y: data.filter(
+      (obj) =>
+        obj.ANOCAT >= initialYear &&
+        obj.ANOCAT <= finalYear &&
+        obj.RCIUpesoFenton == 0
+    ).length,
+    relative:
+      Math.round(
+        (data.filter(
+          (obj) =>
+            obj.ANOCAT >= initialYear &&
+            obj.ANOCAT <= finalYear &&
+            obj.RCIUpesoFenton == 0
+        ).length /
+          size) *
+          100 *
+          100
+      ) / 100,
+  });
+
+  dataVis.data = [];
+
+  dataVis.height = 260;
+
+  dataVis.data.push({
+    type: "column",
+    dataPoints: dataPoints,
+  });
+
+  handleResponse(dataVis, res);
 });

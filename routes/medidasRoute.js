@@ -30,6 +30,12 @@ import {
   RCIURCEUFreq,
   RCIUAntNacimientoVars,
   GenderBaseData,
+  RCIUFreqDiasH,
+  RCIUFreqUCI,
+  RCIUFreqEGEntrada,
+  parallelCoordsPMC,
+  RCIUPromPesoPMC,
+  RCIUOxiEntrada,
 } from "../controllers/medidasCrecimientoController.js";
 import express from "express";
 const router = express.Router();
@@ -93,11 +99,23 @@ router.route("/RCIUAntNacimientoVars").get(RCIUAntNacimientoVars);
 
 router.route("/GenderBaseData").get(GenderBaseData);
 
+router.route("/RCIUFreqDiasH").get(RCIUFreqDiasH);
+
+router.route("/RCIUFreqUCI").get(RCIUFreqUCI);
+
+router.route("/RCIUFreqEGEntrada").get(RCIUFreqEGEntrada);
+
+router.route("/RCIUPromPesoPMC").get(RCIUPromPesoPMC);
+
+router.route("/RCIUOxiEntrada").get(RCIUOxiEntrada);
+
 router.route("/RCIUAFPromMedidaBebeNacer").get(RCIUAFPromMedidaBebeNacer);
 
 router.route("/RCIUAFPromMedidaMadre").get(RCIUAFPromMedidaMadre);
 
 router.route("/RCIUAntEntornoVars").get(RCIUAntEntornoVars);
+
+router.route("/parallelPMC").get(parallelCoordsPMC);
 
 // express router method to POST a query in order to group data by years and a variable
 router.route("/group").post(groupByVarYears);
