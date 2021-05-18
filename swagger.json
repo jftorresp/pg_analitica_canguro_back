@@ -13,8 +13,20 @@
   "basePath": "/api",
   "tags": [
     {
-      "name": "Medidas Crecimiento",
-      "description": "API para consultas relacionadas con las medidas de crecimiento (documento principal) y visualiación de datos"
+      "name": "Medidas",
+      "description": "API para consultas generales que pueden aplicar a todas las etapas."
+    },
+    {
+      "name": "Etapa de Entorno",
+      "description": "API para consultas y operaciones relacionadas con la etapa de entorno"
+    },
+    {
+      "name": "Etapa de Nacimiento",
+      "description": "API para consultas y operaciones relacionadas con la etapa de nacimiento"
+    },
+    {
+      "name": "Etapa de Crecimiento",
+      "description": "API para consultas y operaciones relacionadas con la etapa de crecimiento"
     },
     {
       "name": "Etapas",
@@ -29,9 +41,466 @@
   "consumes": ["application/json"],
   "produces": ["application/json"],
   "paths": {
+    "/entorno/RCIUaf": {
+      "get": {
+        "tags": ["Etapa de Entorno"],
+        "summary": "GET Obtiene las frecuencias absolutas en intervalos de 5 años para las muestras con RCIU",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/GraphAbs"
+            }
+          }
+        }
+      }
+    },
+    "/entorno/RCIUrf": {
+      "get": {
+        "tags": ["Etapa de Entorno"],
+        "summary": "GET Obtiene las frecuencias relativas en intervalos de 5 años para las muestras con RCIU",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/GraphRel"
+            }
+          }
+        }
+      }
+    },
+    "/entorno/RCIUInitrfprem": {
+      "post": {
+        "tags": ["Etapa de Entorno"],
+        "summary": "POST Obtiene datos para graficar valores relativos para la(s) variables de entorno especificadas",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "body",
+            "description": "Objeto con el query a la base de datos. (inicio, fin, vars, prem) - posibles variables: toxemia, Embarazomultiple, primipara, nivelmama, adolescentes, mayores, pesomama, tallamama, pesopapa, tallapapa, percapitasalariominimo",
+            "schema": {
+              "$ref": "#/definitions/Query1"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/GraphRel2"
+            }
+          }
+        }
+      }
+    },
+    "/entorno/RCIUInitafprem": {
+      "post": {
+        "tags": ["Etapa de Entorno"],
+        "summary": "POST Obtiene datos para graficar valores absolutos para la(s) variables de entorno especificadas",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "body",
+            "description": "Objeto con el query a la base de datos. (inicio, fin, vars, prem) - posibles variables: toxemia, Embarazomultiple, primipara, nivelmama, adolescentes, mayores, pesomama, tallamama, pesopapa, tallapapa, percapitasalariominimo",
+            "schema": {
+              "$ref": "#/definitions/Query1"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/GraphAbs"
+            }
+          }
+        }
+      }
+    },
+    "/entorno/RCIUAFMedidaMadre": {
+      "get": {
+        "tags": ["Etapa de Entorno"],
+        "summary": "GET Obtiene datos para graficar valores absolutos para la(s) variables de entorno de medidas antropométricas",
+        "parameters": [
+          {
+            "name": "var",
+            "in": "query",
+            "description": "Nombre de la variable antropométrica (pesomama, tallamama, pesopapa, tallapapa)",
+            "type": "string"
+          },
+          {
+            "name": "inicio",
+            "in": "query",
+            "description": "Año inicio (1993-2020)",
+            "type": "integer"
+          },
+          {
+            "name": "fin",
+            "in": "query",
+            "description": "Año final (1993-2020)",
+            "type": "integer"
+          },
+          {
+            "name": "prem",
+            "in": "query",
+            "description": "Tomar muestra prematura ( edad gestacional < 37 semanas) - escribir true o false",
+            "type": "string"
+          },
+          {
+            "name": "desde",
+            "in": "query",
+            "description": "Filtro aplicado a la variable (valor inicio) - escribir 0 si no aplica",
+            "type": "string"
+          },
+          {
+            "name": "hasta",
+            "in": "query",
+            "description": "Filtro aplicado a la variable (valor fin) - escribir 0 si no aplica",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/GraphAbs"
+            }
+          }
+        }
+      }
+    },
+    "/entorno/RCIURFEstudiosMadre": {
+      "get": {
+        "tags": ["Etapa de Entorno"],
+        "summary": "GET Obtiene datos para graficar la distribución de nivel de estudios de la madre",
+        "parameters": [
+          {
+            "name": "inicio",
+            "in": "query",
+            "description": "Año inicio (1993-2020)",
+            "type": "integer"
+          },
+          {
+            "name": "fin",
+            "in": "query",
+            "description": "Año final (1993-2020)",
+            "type": "integer"
+          },
+          {
+            "name": "prem",
+            "in": "query",
+            "description": "Tomar muestra prematura ( edad gestacional < 37 semanas) - escribir true o false",
+            "type": "string"
+          },
+          {
+            "name": "estudio",
+            "in": "query",
+            "description": "Filtro aplicado al nivel de estudios - (primaria, secundaria, tecnico)",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/GraphAbs"
+            }
+          }
+        }
+      }
+    },
+    "/entorno/RCIURFIngresosMadre": {
+      "get": {
+        "tags": ["Etapa de Entorno"],
+        "summary": "GET Obtiene datos para graficar la distribución de ingresos de la mamá",
+        "parameters": [
+          {
+            "name": "inicio",
+            "in": "query",
+            "description": "Año inicio (1993-2020)",
+            "type": "integer"
+          },
+          {
+            "name": "fin",
+            "in": "query",
+            "description": "Año final (1993-2020)",
+            "type": "integer"
+          },
+          {
+            "name": "prem",
+            "in": "query",
+            "description": "Tomar muestra prematura ( edad gestacional < 37 semanas) - escribir true o false",
+            "type": "string"
+          },
+          {
+            "name": "desde",
+            "in": "query",
+            "description": "Filtro aplicado a la variable (valor inicio) - escribir 0 si no aplica",
+            "type": "string"
+          },
+          {
+            "name": "hasta",
+            "in": "query",
+            "description": "Filtro aplicado a la variable (valor fin) - escribir 0 si no aplica",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/GraphRel"
+            }
+          }
+        }
+      }
+    },
+    "/entorno/RCIUAntEntornoVars": {
+      "get": {
+        "tags": ["Etapa de Entorno"],
+        "summary": "GET Obtiene las variables disponibles para la etapa de entorno",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      },
+                      "tipo": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nacimiento/RCIUFreqCesarea": {
+      "post": {
+        "tags": ["Etapa de Nacimiento"],
+        "summary": "GET Obtiene los datos para las gráficas de frecuencia de cesárea",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "body",
+            "description": "Objeto con el query a la base de datos. (inicio, fin, vars, prem)",
+            "schema": {
+              "$ref": "#/definitions/Query1"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/GraphRel"
+            }
+          }
+        }
+      }
+    },
+    "/nacimiento/RCIUFreqGender": {
+      "post": {
+        "tags": ["Etapa de Nacimiento"],
+        "summary": "GET Obtiene los datos para las gráficas de frecuencia de género",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "body",
+            "description": "Objeto con el query a la base de datos. (inicio, fin, vars, prem, rciu)",
+            "schema": {
+              "$ref": "#/definitions/Query2"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/GraphAbs"
+            }
+          }
+        }
+      }
+    },
+    "/nacimiento/RCIUFreqEdadGes": {
+      "post": {
+        "tags": ["Etapa de Nacimiento"],
+        "summary": "GET Obtiene los datos para la gráfica de promedios de edad gestacional por rangos",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "body",
+            "description": "Objeto con el query a la base de datos. (inicio, fin, vars)",
+            "schema": {
+              "$ref": "#/definitions/Query3"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/GraphRel"
+            }
+          }
+        }
+      }
+    },
+    "/nacimiento/RCIUFreqEGPremTerm": {
+      "post": {
+        "tags": ["Etapa de Nacimiento"],
+        "summary": "GET Obtiene los procentajes de edad gestacional con y sin RCIU",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "body",
+            "description": "Objeto con el query a la base de datos. (inicio, fin, vars)",
+            "schema": {
+              "$ref": "#/definitions/Query3"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "type": "object",
+              "properties": {
+                "prematurosRCIU": {
+                  "type": "integer"
+                },
+                "terminoRCIU": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nacimiento/RCIURCEUFreq": {
+      "post": {
+        "tags": ["Etapa de Nacimiento"],
+        "summary": "GET Obtiene los datos de las gráficas de relación RCIU y RCEU",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "body",
+            "description": "Objeto con el query a la base de datos. (inicio, fin, vars, prem)",
+            "schema": {
+              "$ref": "#/definitions/Query1"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/GroupData"
+            }
+          }
+        }
+      }
+    },
+    "/nacimiento/RCIUAFPromMedidaBebeNacer": {
+      "post": {
+        "tags": ["Etapa de Nacimiento"],
+        "summary": "GET Obtiene los datos de las gráficas de promedio de medidas antropométricas al nacer",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "body",
+            "description": "Objeto con el query a la base de datos. (inicio, fin, vars, prem, var, desde, hasta) - Variables posibles: (pesoalnacer, tallaalnacer, pcalnacer)",
+            "schema": {
+              "$ref": "#/definitions/Query4"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "$ref": "#/definitions/GroupData"
+            }
+          }
+        }
+      }
+    },
+    "/nacimiento/RCIUAntNacimientoVars": {
+      "get": {
+        "tags": ["Etapa de Nacimiento"],
+        "summary": "GET Obtiene las variables disponibles para la etapa de nacimiento",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "description": "Datos obtenidos correctamente",
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string"
+                      },
+                      "tipo": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/medidas/query": {
       "post": {
-        "tags": ["Medidas Crecimiento"],
+        "tags": ["Medidas"],
         "summary": "POST Envía un objeto con los elementos para el query",
         "parameters": [
           {
@@ -57,7 +526,7 @@
     },
     "/medidas/group": {
       "post": {
-        "tags": ["Medidas Crecimiento"],
+        "tags": ["Medidas"],
         "summary": "POST Agrupa los datos por años y por los diferentes valores de una variable especificada",
         "parameters": [
           {
@@ -96,7 +565,7 @@
     },
     "/medidas/{id}": {
       "get": {
-        "tags": ["Medidas Crecimiento"],
+        "tags": ["Medidas"],
         "summary": "GET Documento en la colección con el id especificado",
         "parameters": [
           {
@@ -121,7 +590,7 @@
     },
     "/medidas/query/{var}": {
       "get": {
-        "tags": ["Medidas Crecimiento"],
+        "tags": ["Medidas"],
         "summary": "GET Todos los valores posibles para la variable especificada",
         "parameters": [
           {
@@ -148,7 +617,7 @@
     },
     "/medidas/dict/{var}": {
       "get": {
-        "tags": ["Medidas Crecimiento"],
+        "tags": ["Medidas"],
         "summary": "GET Conversión a valores categóricos dependiendo del diccionario y variable especificada. Aplica para datos nominales y ordinales",
         "parameters": [
           {
@@ -183,7 +652,7 @@
     },
     "/medidas/datos": {
       "get": {
-        "tags": ["Medidas Crecimiento"],
+        "tags": ["Medidas"],
         "summary": "GET Todos los datos en la colección",
         "responses": {
           "200": {
@@ -198,7 +667,7 @@
     },
     "/medidas/vars": {
       "get": {
-        "tags": ["Medidas Crecimiento"],
+        "tags": ["Medidas"],
         "summary": "GET Todas las variables dependiendo de la etapa o tema de interés",
         "parameters": [
           {
@@ -239,7 +708,7 @@
     },
     "/medidas/anios": {
       "get": {
-        "tags": ["Medidas Crecimiento"],
+        "tags": ["Medidas"],
         "summary": "GET Todos los años que cubren los datos",
         "responses": {
           "200": {
@@ -254,7 +723,7 @@
     },
     "/medidas/dist": {
       "get": {
-        "tags": ["Medidas Crecimiento"],
+        "tags": ["Medidas"],
         "summary": "GET Distribución de datos para la variable discreta seleccionada en el año especificado",
         "parameters": [
           {
@@ -293,7 +762,7 @@
     },
     "/medidas/cont": {
       "get": {
-        "tags": ["Medidas Crecimiento"],
+        "tags": ["Medidas"],
         "summary": "GET Distribución de datos para la variable continua seleccionada en el año especificado",
         "parameters": [
           {
@@ -512,6 +981,301 @@
         "$ref": "#/definitions/Tema"
       }
     },
+    "GraphAbs": {
+      "type": "object",
+      "properties": {
+        "colorSet": {
+          "type": "string"
+        },
+        "axisX": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "titleFontFamily": {
+              "type": "string"
+            },
+            "labelFontFamily": {
+              "type": "string"
+            },
+            "titleFontStyle": {
+              "type": "string"
+            }
+          }
+        },
+        "axisY": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "titleFontFamily": {
+              "type": "string"
+            },
+            "labelFontFamily": {
+              "type": "string"
+            },
+            "titleFontStyle": {
+              "type": "string"
+            }
+          }
+        },
+        "tooltip": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "fontFamily": {
+              "type": "string"
+            }
+          }
+        },
+        "zoomEnabled": {
+          "type": "boolean"
+        },
+        "zoomType": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "dataPoints": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "y": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "height": {
+          "type": "integer"
+        }
+      }
+    },
+    "GraphRel": {
+      "type": "object",
+      "properties": {
+        "colorSet": {
+          "type": "string"
+        },
+        "axisX": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "titleFontFamily": {
+              "type": "string"
+            },
+            "labelFontFamily": {
+              "type": "string"
+            },
+            "titleFontStyle": {
+              "type": "string"
+            }
+          }
+        },
+        "axisY": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "titleFontFamily": {
+              "type": "string"
+            },
+            "labelFontFamily": {
+              "type": "string"
+            },
+            "titleFontStyle": {
+              "type": "string"
+            }
+          }
+        },
+        "tooltip": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "fontFamily": {
+              "type": "string"
+            }
+          }
+        },
+        "zoomEnabled": {
+          "type": "boolean"
+        },
+        "zoomType": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "dataPoints": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer"
+                  },
+                  "y": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "height": {
+          "type": "integer"
+        }
+      }
+    },
+    "GraphRel2": {
+      "type": "object",
+      "properties": {
+        "colorSet": {
+          "type": "string"
+        },
+        "axisX": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "titleFontFamily": {
+              "type": "string"
+            },
+            "labelFontFamily": {
+              "type": "string"
+            },
+            "titleFontStyle": {
+              "type": "string"
+            }
+          }
+        },
+        "axisY": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "titleFontFamily": {
+              "type": "string"
+            },
+            "labelFontFamily": {
+              "type": "string"
+            },
+            "titleFontStyle": {
+              "type": "string"
+            }
+          }
+        },
+        "tooltip": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string"
+            },
+            "fontFamily": {
+              "type": "string"
+            }
+          }
+        },
+        "zoomEnabled": {
+          "type": "boolean"
+        },
+        "zoomType": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "markerSize": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "showInLegend": {
+                "type": "boolean"
+              },
+              "type": {
+                "type": "string"
+              },
+              "dataPoints": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer"
+                  },
+                  "y": {
+                    "type": "integer"
+                  },
+                  "absolute": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "height": {
+          "type": "integer"
+        }
+      }
+    },
+    "GroupData": {
+      "type": "object",
+      "properties": {
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "datasets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "data": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "backgroundColor": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
     "Group": {
       "type": "object",
       "properties": {
@@ -529,29 +1293,92 @@
         }
       }
     },
-    "Query": {
+    "Query1": {
       "type": "object",
       "properties": {
-        "years": {
-          "type": "array",
-          "items": {
-            "type": "integer"
-          }
+        "inicio": {
+          "type": "integer"
         },
-        "etapa": {
-          "type": "string"
-        },
-        "temas": {
-          "type:": "array",
-          "items": {
-            "type": "string"
-          }
+        "fin": {
+          "type": "integer"
         },
         "vars": {
           "type:": "array",
           "items": {
             "type": "string"
           }
+        },
+        "prem": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Query2": {
+      "type": "object",
+      "properties": {
+        "inicio": {
+          "type": "integer"
+        },
+        "fin": {
+          "type": "integer"
+        },
+        "rciu": {
+          "type:": "string"
+        },
+        "vars": {
+          "type:": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "prem": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Query3": {
+      "type": "object",
+      "properties": {
+        "inicio": {
+          "type": "integer"
+        },
+        "fin": {
+          "type": "integer"
+        },
+        "vars": {
+          "type:": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Query4": {
+      "type": "object",
+      "properties": {
+        "inicio": {
+          "type": "integer"
+        },
+        "fin": {
+          "type": "integer"
+        },
+        "var": {
+          "type:": "string"
+        },
+        "vars": {
+          "type:": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "prem": {
+          "type": "string"
+        },
+        "desde": {
+          "type": "string"
+        },
+        "hasta": {
+          "type": "string"
         }
       }
     },

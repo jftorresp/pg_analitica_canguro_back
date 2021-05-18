@@ -1646,11 +1646,13 @@ export const GenderBaseData = asyncHandler(async (req, res) => {
       }
 
       if (variables[i].value == "nivelmama") {
-        query.nivelmama = variables[i].filter.includes("primaria")
-          ? 1
-          : variables[i].filter.includes("secundaria")
-          ? 2
-          : 3;
+        if (variables[i].estudio) {
+          query.nivelmama = variables[i].filter.includes("primaria")
+            ? 1
+            : variables[i].filter.includes("secundaria")
+            ? 2
+            : 3;
+        }
       }
 
       if (variables[i].value == "pesomama") {
