@@ -1697,6 +1697,37 @@ export const GenderBaseData = asyncHandler(async (req, res) => {
           };
         }
       }
+
+      if (variables[i].value == "cesarea") {
+        query.cesarea = 1;
+      }
+
+      if (variables[i].value == "pesoalnacer") {
+        if (variables[i].desde && variables[i].hasta) {
+          query.pesoalnacer = {
+            $gte: parseInt(variables[i].desde),
+            $lte: parseInt(variables[i].hasta),
+          };
+        }
+      }
+
+      if (variables[i].value == "tallaalnacer") {
+        if (variables[i].desde && variables[i].hasta) {
+          query.tallaalnacer = {
+            $gte: parseInt(variables[i].desde),
+            $lte: parseInt(variables[i].hasta),
+          };
+        }
+      }
+
+      if (variables[i].value == "pcalnacer") {
+        if (variables[i].desde && variables[i].hasta) {
+          query.pcalnacer = {
+            $gte: parseInt(variables[i].desde),
+            $lte: parseInt(variables[i].hasta),
+          };
+        }
+      }
     }
 
     data = await medidasCrecimiento

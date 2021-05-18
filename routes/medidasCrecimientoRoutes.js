@@ -12,34 +12,52 @@ import {
   getEtapasCrecimiento,
   getVarsByEtapaCrecimiento,
   RCIUNut4012,
+  getGriffiths,
+  RCIUInfanibProm,
+  RCIUInfanibTime,
+  RCIUoftalmologia,
+  RCIUoptometria,
+  RCIUaudiometria,
 } from "../controllers/medidasCrecimientoController.js";
 import express from "express";
 const router = express.Router();
 
-router.route("/RCIUFreqDiasH").get(RCIUFreqDiasH);
+router.route("/RCIUFreqDiasH").post(RCIUFreqDiasH);
 
-router.route("/RCIUFreqUCI").get(RCIUFreqUCI);
+router.route("/RCIUFreqUCI").post(RCIUFreqUCI);
 
-router.route("/RCIUFreqEGEntrada").get(RCIUFreqEGEntrada);
+router.route("/RCIUFreqEGEntrada").post(RCIUFreqEGEntrada);
 
-router.route("/parallelCoordsPMC").get(parallelCoordsPMC);
+router.route("/parallelCoordsPMC").post(parallelCoordsPMC);
 
-router.route("/RCIUPromPesoPMC").get(RCIUPromPesoPMC);
+router.route("/RCIUPromPesoPMC").post(RCIUPromPesoPMC);
 
-router.route("/RCIUOxiEntrada").get(RCIUOxiEntrada);
+router.route("/RCIUOxiEntrada").post(RCIUOxiEntrada);
 
-router.route("/RCIULecheMaterna").get(RCIULecheMaterna);
+router.route("/RCIULecheMaterna").post(RCIULecheMaterna);
 
-router.route("/RCIULecheMaternaTime").get(RCIULecheMaternaTime);
+router.route("/RCIULecheMaternaTime").post(RCIULecheMaternaTime);
 
-router.route("/RCIUAbsLecheMaternaTime").get(RCIUAbsLecheMaternaTime);
+router.route("/RCIUAbsLecheMaternaTime").post(RCIUAbsLecheMaternaTime);
 
-router.route("/parallelCoordsLecheMaterna").get(parallelCoordsLecheMaterna);
+router.route("/parallelCoordsLecheMaterna").post(parallelCoordsLecheMaterna);
 
 router.route("/getEtapasCrecimiento").get(getEtapasCrecimiento);
 
 router.route("/getVarsByEtapaCrecimiento").post(getVarsByEtapaCrecimiento);
 
-router.route("/RCIUNut4012").get(RCIUNut4012);
+router.route("/RCIUNut4012").post(RCIUNut4012);
+
+router.route("/getGriffiths").post(getGriffiths);
+
+router.route("/RCIUInfanibProm").post(RCIUInfanibProm);
+
+router.route("/RCIUInfanibTime").post(RCIUInfanibTime);
+
+router.route("/RCIUoftalmologia").post(RCIUoftalmologia);
+
+router.route("/RCIUoptometria").post(RCIUoptometria);
+
+router.route("/RCIUaudiometria").post(RCIUaudiometria);
 
 export default router;

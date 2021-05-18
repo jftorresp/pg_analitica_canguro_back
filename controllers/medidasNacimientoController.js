@@ -285,6 +285,14 @@ export const RCIUFreqGender = asyncHandler(async (req, res) => {
           $lte: parseInt(variables[i].hasta),
         };
       }
+
+      if (variables[i].value == "sexo") {
+        query.sexo = variables[i].filter.includes("niño")
+          ? 1
+          : variables[i].filter.includes("niña")
+          ? 2
+          : 3;
+      }
     }
 
     data = await medidasCrecimiento
@@ -325,24 +333,36 @@ export const RCIUFreqGender = asyncHandler(async (req, res) => {
   dataVis.zoomEnabled = true;
   dataVis.zoomType = "xy";
 
-  for (let i = 0; i < yearsInterval.length; i++) {
-    dataPoints1.push({
-      label: yearsInterval[i].toString(),
-      y:
-        (data.filter((obj) => obj.ANOCAT == yearsInterval[i] && obj.sexo == 1)
-          .length /
-          data.filter((obj) => obj.ANOCAT == yearsInterval[i]).length) *
-        100,
-    });
+  if (variables.some((v) => (v.value = "sexo"))) {
+    for (let i = 0; i < yearsInterval.length; i++) {
+      dataPoints1.push({
+        label: yearsInterval[i].toString(),
+        y:
+          (data.filter((obj) => obj.ANOCAT == yearsInterval[i]).length /
+            data.filter((obj) => obj.ANOCAT == yearsInterval[i]).length) *
+          100,
+      });
+    }
+  } else {
+    for (let i = 0; i < yearsInterval.length; i++) {
+      dataPoints1.push({
+        label: yearsInterval[i].toString(),
+        y:
+          (data.filter((obj) => obj.ANOCAT == yearsInterval[i] && obj.sexo == 1)
+            .length /
+            data.filter((obj) => obj.ANOCAT == yearsInterval[i]).length) *
+          100,
+      });
 
-    dataPoints2.push({
-      label: yearsInterval[i].toString(),
-      y:
-        (data.filter((obj) => obj.ANOCAT == yearsInterval[i] && obj.sexo == 2)
-          .length /
-          data.filter((obj) => obj.ANOCAT == yearsInterval[i]).length) *
-        100,
-    });
+      dataPoints2.push({
+        label: yearsInterval[i].toString(),
+        y:
+          (data.filter((obj) => obj.ANOCAT == yearsInterval[i] && obj.sexo == 2)
+            .length /
+            data.filter((obj) => obj.ANOCAT == yearsInterval[i]).length) *
+          100,
+      });
+    }
   }
 
   dataVis.data = [];
@@ -353,41 +373,61 @@ export const RCIUFreqGender = asyncHandler(async (req, res) => {
     verticalAlign: "top",
   };
 
-  dataVis.data.push({
-    type: "stackedBar100",
-    color: rciu == "true" ? "#70D6BC" : "#0E7FA6",
-    indexLabel: "{y}",
-    indexLabelFontColor: "white",
-    yValueFormatString: "#,###'%'",
-    name:
-      isPremature == "true"
-        ? rciu == "true"
-          ? "Niños con RCIU prematuros"
-          : "Niñas sin RCIU prematuros"
-        : rciu == "true"
-        ? "Niños con RCIU a término"
-        : "Niños sin RCIU a término",
-    showInLegend: true,
-    dataPoints: dataPoints1,
-  });
+  if (variables.some((v) => (v.value = "sexo"))) {
+    dataVis.data.push({
+      type: "stackedBar100",
+      color: rciu == "true" ? "#70D6BC" : "#0E7FA6",
+      indexLabel: "{y}",
+      indexLabelFontColor: "white",
+      yValueFormatString: "#,###'%'",
+      name:
+        isPremature == "true"
+          ? rciu == "true"
+            ? "Niños con RCIU prematuros"
+            : "Niñas sin RCIU prematuros"
+          : rciu == "true"
+          ? "Niños con RCIU a término"
+          : "Niños sin RCIU a término",
+      showInLegend: true,
+      dataPoints: dataPoints1,
+    });
+  } else {
+    dataVis.data.push({
+      type: "stackedBar100",
+      color: rciu == "true" ? "#70D6BC" : "#0E7FA6",
+      indexLabel: "{y}",
+      indexLabelFontColor: "white",
+      yValueFormatString: "#,###'%'",
+      name:
+        isPremature == "true"
+          ? rciu == "true"
+            ? "Niños con RCIU prematuros"
+            : "Niñas sin RCIU prematuros"
+          : rciu == "true"
+          ? "Niños con RCIU a término"
+          : "Niños sin RCIU a término",
+      showInLegend: true,
+      dataPoints: dataPoints1,
+    });
 
-  dataVis.data.push({
-    type: "stackedBar100",
-    color: rciu == "true" ? "#FF955B" : "#cb6a47",
-    indexLabel: "{y}",
-    indexLabelFontColor: "white",
-    yValueFormatString: "#,###'%'",
-    name:
-      isPremature == "true"
-        ? rciu == "true"
-          ? "Niñas con RCIU prematuras"
-          : "Niñas sin RCIU prematuras"
-        : rciu == "true"
-        ? "Niñas con RCIU a término"
-        : "Niñas sin RCIU a término",
-    showInLegend: true,
-    dataPoints: dataPoints2,
-  });
+    dataVis.data.push({
+      type: "stackedBar100",
+      color: rciu == "true" ? "#FF955B" : "#cb6a47",
+      indexLabel: "{y}",
+      indexLabelFontColor: "white",
+      yValueFormatString: "#,###'%'",
+      name:
+        isPremature == "true"
+          ? rciu == "true"
+            ? "Niñas con RCIU prematuras"
+            : "Niñas sin RCIU prematuras"
+          : rciu == "true"
+          ? "Niñas con RCIU a término"
+          : "Niñas sin RCIU a término",
+      showInLegend: true,
+      dataPoints: dataPoints2,
+    });
+  }
 
   handleResponse(dataVis, res);
 });
@@ -920,12 +960,24 @@ export const RCIUAFPromMedidaBebeNacer = asyncHandler(async (req, res) => {
   const isPremature = req.body.prem;
   const yearsInterval = [];
   const variables = req.body.vars;
+  const desde = req.body.desde;
+  const hasta = req.body.hasta;
 
   var data = [];
   var query = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
     edadgestacional: isPremature == "true" ? { $lt: 37 } : { $gt: 37 },
   };
+
+  if (desde && desde != "0" && hasta && hasta != "0") {
+    if (variable == "pesoalnacer") {
+      query.pesoalnacer = { $gte: parseInt(desde), $lte: parseInt(hasta) };
+    } else if (variable == "tallaalnacer") {
+      query.tallaalnacer = { $gte: parseInt(desde), $lte: parseInt(hasta) };
+    } else if (variable == "pcalnacer") {
+      query.pcalnacer = { $gte: parseInt(desde), $lte: parseInt(hasta) };
+    }
+  }
 
   if (variables && variables.length > 0) {
     for (let i = 0; i < variables.length; i++) {
@@ -1008,6 +1060,7 @@ export const RCIUAFPromMedidaBebeNacer = asyncHandler(async (req, res) => {
       .lean();
   }
 
+  console.log(query);
   for (let index = initialYear; index < parseInt(finalYear) + 1; index++) {
     yearsInterval.push(index.toString());
   }
