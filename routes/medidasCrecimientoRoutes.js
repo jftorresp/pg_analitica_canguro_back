@@ -18,6 +18,8 @@ import {
   RCIUoftalmologia,
   RCIUoptometria,
   RCIUaudiometria,
+  RCIUPromMedidasGrowth,
+  RCIUMedidaAnio,
 } from "../controllers/medidasCrecimientoController.js";
 import express from "express";
 const router = express.Router();
@@ -59,5 +61,9 @@ router.route("/RCIUoftalmologia").post(RCIUoftalmologia);
 router.route("/RCIUoptometria").post(RCIUoptometria);
 
 router.route("/RCIUaudiometria").post(RCIUaudiometria);
+
+router.route("/RCIUPromMedidasGrowth").post(RCIUPromMedidasGrowth);
+
+router.route("/RCIUMedidaAnio").post(RCIUMedidaAnio);
 
 export default router;

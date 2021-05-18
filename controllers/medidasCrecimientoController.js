@@ -1355,6 +1355,7 @@ export const parallelCoordsLecheMaterna = asyncHandler(async (req, res) => {
   const time = req.body.time;
   const rciu = req.body.rciu;
   const variables = req.body.vars;
+  const leche = req.body.leche;
   const yearsInterval = [];
 
   const queryInitial = {
@@ -1421,16 +1422,17 @@ export const parallelCoordsLecheMaterna = asyncHandler(async (req, res) => {
                   ? obj.RCIUpesoFenton == 1
                   : obj.RCIUpesoFenton == 0) &&
                 obj["edadgestacionalalaentrada"] &&
-                obj.alimentacion &&
-                (time == "40"
-                  ? obj.alimentacion.sem40 != 3
-                  : time == "3"
-                  ? obj.alimentacion.mes3 != 3
-                  : time == "6"
-                  ? obj.alimentacion.mes6 != 3
-                  : time == "9"
-                  ? obj.alimentacion.mes9 != 4
-                  : obj.alimentacion.mes12 != 3)
+                (leche == "true"
+                  ? time == "40"
+                    ? obj.alimentacion && obj.alimentacion.sem40 != 3
+                    : time == "3"
+                    ? obj.alimentacion && obj.alimentacion.mes3 != 3
+                    : time == "6"
+                    ? obj.alimentacion && obj.alimentacion.mes6 != 3
+                    : time == "9"
+                    ? obj.alimentacion && obj.alimentacion.mes9 != 4
+                    : obj.alimentacion && obj.alimentacion.mes12 != 3
+                  : true)
             )
             .reduce((a, b) => a + (b["edadgestacionalalaentrada"] || 0), 0) /
             data.filter(
@@ -1452,16 +1454,17 @@ export const parallelCoordsLecheMaterna = asyncHandler(async (req, res) => {
                   ? obj.RCIUpesoFenton == 1
                   : obj.RCIUpesoFenton == 0) &&
                 obj["peso"] &&
-                obj.alimentacion &&
-                (time == "40"
-                  ? obj.alimentacion.sem40 != 3
-                  : time == "3"
-                  ? obj.alimentacion.mes3 != 3
-                  : time == "6"
-                  ? obj.alimentacion.mes6 != 3
-                  : time == "9"
-                  ? obj.alimentacion.mes9 != 4
-                  : obj.alimentacion.mes12 != 3)
+                (leche == "true"
+                  ? time == "40"
+                    ? obj.alimentacion && obj.alimentacion.sem40 != 3
+                    : time == "3"
+                    ? obj.alimentacion && obj.alimentacion.mes3 != 3
+                    : time == "6"
+                    ? obj.alimentacion && obj.alimentacion.mes6 != 3
+                    : time == "9"
+                    ? obj.alimentacion && obj.alimentacion.mes9 != 4
+                    : obj.alimentacion && obj.alimentacion.mes12 != 3
+                  : true)
             )
             .reduce((a, b) => a + (b["peso"][tiempo] || 0), 0) /
             data.filter(
@@ -1483,16 +1486,17 @@ export const parallelCoordsLecheMaterna = asyncHandler(async (req, res) => {
                   ? obj.RCIUpesoFenton == 1
                   : obj.RCIUpesoFenton == 0) &&
                 obj["talla"] &&
-                obj.alimentacion &&
-                (time == "40"
-                  ? obj.alimentacion.sem40 != 3
-                  : time == "3"
-                  ? obj.alimentacion.mes3 != 3
-                  : time == "6"
-                  ? obj.alimentacion.mes6 != 3
-                  : time == "9"
-                  ? obj.alimentacion.mes9 != 4
-                  : obj.alimentacion.mes12 != 3)
+                (leche == "true"
+                  ? time == "40"
+                    ? obj.alimentacion && obj.alimentacion.sem40 != 3
+                    : time == "3"
+                    ? obj.alimentacion && obj.alimentacion.mes3 != 3
+                    : time == "6"
+                    ? obj.alimentacion && obj.alimentacion.mes6 != 3
+                    : time == "9"
+                    ? obj.alimentacion && obj.alimentacion.mes9 != 4
+                    : obj.alimentacion && obj.alimentacion.mes12 != 3
+                  : true)
             )
             .reduce((a, b) => a + (b["talla"][tiempo] || 0), 0) /
             data.filter(
@@ -1514,16 +1518,17 @@ export const parallelCoordsLecheMaterna = asyncHandler(async (req, res) => {
                   ? obj.RCIUpesoFenton == 1
                   : obj.RCIUpesoFenton == 0) &&
                 obj["pc"] &&
-                obj.alimentacion &&
-                (time == "40"
-                  ? obj.alimentacion.sem40 != 3
-                  : time == "3"
-                  ? obj.alimentacion.mes3 != 3
-                  : time == "6"
-                  ? obj.alimentacion.mes6 != 3
-                  : time == "9"
-                  ? obj.alimentacion.mes9 != 4
-                  : obj.alimentacion.mes12 != 3)
+                (leche == "true"
+                  ? time == "40"
+                    ? obj.alimentacion && obj.alimentacion.sem40 != 3
+                    : time == "3"
+                    ? obj.alimentacion && obj.alimentacion.mes3 != 3
+                    : time == "6"
+                    ? obj.alimentacion && obj.alimentacion.mes6 != 3
+                    : time == "9"
+                    ? obj.alimentacion && obj.alimentacion.mes9 != 4
+                    : obj.alimentacion && obj.alimentacion.mes12 != 3
+                  : true)
             )
             .reduce((a, b) => a + (b["pc"][tiempo] || 0), 0) /
             data.filter(
@@ -1572,6 +1577,21 @@ export const getVarsByEtapaCrecimiento = asyncHandler(async (req, res) => {
     vars.push({
       value: "audiometria",
       label: "Audiometría",
+    });
+
+    vars.push({
+      value: "pesoAnio",
+      label: "Peso durante el primer año",
+    });
+
+    vars.push({
+      value: "tallaAnio",
+      label: "Talla durante el primer año",
+    });
+
+    vars.push({
+      value: "pcAnio",
+      label: "Perímetro craneal durante el primer año",
     });
   }
 
@@ -1624,6 +1644,11 @@ export const getVarsByEtapaCrecimiento = asyncHandler(async (req, res) => {
     });
 
     vars.push({
+      value: "medidas40",
+      label: "Medidas antropométricas (40 sem)",
+    });
+
+    vars.push({
       value: "peso.sem40",
       label: "Peso 40 semanas",
     });
@@ -1656,6 +1681,11 @@ export const getVarsByEtapaCrecimiento = asyncHandler(async (req, res) => {
     });
 
     vars.push({
+      value: "medidas3",
+      label: "Medidas antropométricas (mes 3)",
+    });
+
+    vars.push({
       value: "peso.mes3",
       label: "Peso 3 meses",
     });
@@ -1685,6 +1715,11 @@ export const getVarsByEtapaCrecimiento = asyncHandler(async (req, res) => {
     vars.push({
       value: "medidasLecheMes6",
       label: "Medidas antropométricas con leche materna (mes 6)",
+    });
+
+    vars.push({
+      value: "medidas6",
+      label: "Medidas antropométricas (mes 6)",
     });
 
     vars.push({
@@ -1725,6 +1760,11 @@ export const getVarsByEtapaCrecimiento = asyncHandler(async (req, res) => {
     });
 
     vars.push({
+      value: "medidas9",
+      label: "Medidas antropométricas (mes 9)",
+    });
+
+    vars.push({
       value: "peso.mes9",
       label: "Peso 9 meses",
     });
@@ -1754,6 +1794,11 @@ export const getVarsByEtapaCrecimiento = asyncHandler(async (req, res) => {
     vars.push({
       value: "medidasLecheMes12",
       label: "Medidas antropométricas con leche materna (mes 12)",
+    });
+
+    vars.push({
+      value: "medidas12",
+      label: "Medidas antropométricas (mes 12)",
     });
 
     vars.push({
@@ -2907,6 +2952,263 @@ export const RCIUaudiometria = asyncHandler(async (req, res) => {
 
   dataVis.labels = ["Muere o deserta", "Normal", "Anormal uno o dos lados"];
   dataVis.datasets = datasets;
+
+  handleResponse(dataVis, res);
+});
+
+// RCIUAFPromMedidaBebeNacer
+export const RCIUPromMedidasGrowth = asyncHandler(async (req, res) => {
+  const variable = req.body.var;
+  const initialYear = req.body.inicio;
+  const finalYear = req.body.fin;
+  const yearsInterval = [];
+  const variables = req.body.vars;
+  // const desde = req.body.desde;
+  // const hasta = req.body.hasta;
+
+  const queryInitial = {
+    ANOCAT: { $gte: initialYear, $lte: finalYear },
+  };
+  const query = manageFilters(queryInitial, variables);
+
+  // if (desde && desde != "0" && hasta && hasta != "0") {
+  //   if (variable == "pesoalnacer") {
+  //     query.pesoalnacer = { $gte: parseInt(desde), $lte: parseInt(hasta) };
+  //   } else if (variable == "tallaalnacer") {
+  //     query.tallaalnacer = { $gte: parseInt(desde), $lte: parseInt(hasta) };
+  //   } else if (variable == "pcalnacer") {
+  //     query.pcalnacer = { $gte: parseInt(desde), $lte: parseInt(hasta) };
+  //   }
+  // }
+
+  const data = await medidasCrecimiento
+    .find(query)
+    .select(["ANOCAT", "RCIUpesoFenton", variable])
+    .lean();
+
+  for (let index = initialYear; index < parseInt(finalYear) + 1; index++) {
+    yearsInterval.push(index.toString());
+  }
+
+  const dataVis = {};
+  const dataWith = [];
+  const dataWithout = [];
+  const datasets = [];
+
+  var split = variable.split(".");
+  var first = split[0];
+  var second = split[1];
+
+  for (let i = 0; i < yearsInterval.length; i++) {
+    dataWith.push(
+      Math.round(
+        (data
+          .filter(
+            (obj) =>
+              obj.RCIUpesoFenton == 1 &&
+              obj.ANOCAT == yearsInterval[i] &&
+              obj[first]
+          )
+          .reduce((a, b) => a + (b[first][second] || 0), 0) /
+          data.filter(
+            (obj) => obj.RCIUpesoFenton == 1 && obj.ANOCAT == yearsInterval[i]
+          ).length) *
+          100
+      ) / 100
+    );
+
+    dataWithout.push(
+      Math.round(
+        (data
+          .filter(
+            (obj) =>
+              obj.RCIUpesoFenton == 0 &&
+              obj.ANOCAT == yearsInterval[i] &&
+              obj[first]
+          )
+          .reduce((a, b) => a + (b[first][second] || 0), 0) /
+          data.filter(
+            (obj) => obj.RCIUpesoFenton == 0 && obj.ANOCAT == yearsInterval[i]
+          ).length) *
+          100
+      ) / 100
+    );
+  }
+
+  var medida = "";
+  if (variable.includes("peso")) {
+    medida = "(gr)";
+  } else if (variable.includes("talla") || variable.includes("pc")) {
+    medida = "(cm)";
+  }
+
+  datasets.push({
+    label: `Promedio ${variable} con RCIU ${medida}`,
+    data: dataWith,
+    backgroundColor: "#0E7FA6",
+  });
+
+  datasets.push({
+    label: `Promedio ${variable} sin RCIU ${medida}`,
+
+    data: dataWithout,
+    backgroundColor: "#FF955B",
+  });
+
+  dataVis.labels = yearsInterval;
+  dataVis.datasets = datasets;
+
+  handleResponse(dataVis, res);
+});
+
+export const RCIUMedidaAnio = asyncHandler(async (req, res) => {
+  const initialYear = req.body.inicio;
+  const finalYear = req.body.fin;
+  const variables = req.body.vars;
+  const variable = req.body.var;
+
+  const queryInitial = {
+    ANOCAT: { $gte: initialYear, $lte: finalYear },
+  };
+
+  const query = manageFilters(queryInitial, variables);
+
+  const data = await medidasCrecimiento
+    .find(query)
+    .select(["ANOCAT", "RCIUpesoFenton", variable])
+    .lean();
+
+  const dataPoints1 = [];
+  const dataPoints2 = [];
+
+  const dataVis = {};
+  dataVis.colorSet = "customColorSetPrem";
+  dataVis.axisX = {
+    title: "Momento del año de vida",
+    titleFontFamily: "arial",
+    labelFontFamily: "arial",
+    titleFontStyle: "bold",
+    interval: 1,
+  };
+  dataVis.axisY = {
+    title: `Promedio ${variable}`,
+    titleFontFamily: "arial",
+    labelFontFamily: "arial",
+    titleFontStyle: "bold",
+  };
+
+  dataVis.toolTip = {
+    fontFamily: "arial",
+  };
+
+  dataVis.zoomEnabled = true;
+  dataVis.zoomType = "xy";
+
+  for (let i = 0; i < 5; i++) {
+    dataPoints1.push({
+      x: i,
+      y:
+        Math.round(
+          (data
+            .filter(
+              (obj) =>
+                obj.ANOCAT >= initialYear &&
+                obj.ANOCAT <= finalYear &&
+                obj[variable] &&
+                obj.RCIUpesoFenton == 1
+            )
+            .reduce(
+              (a, b) =>
+                a +
+                (b[variable][
+                  i == 0
+                    ? "sem40"
+                    : i == 1
+                    ? "mes3"
+                    : i == 2
+                    ? "mes6"
+                    : i == 3
+                    ? "mes9"
+                    : "mes12"
+                ] || 0),
+              0
+            ) /
+            data.filter(
+              (obj) =>
+                obj.ANOCAT >= initialYear &&
+                obj.ANOCAT <= finalYear &&
+                obj.RCIUpesoFenton == 1
+            ).length) *
+            100
+        ) / 100,
+    });
+
+    dataPoints2.push({
+      x: i,
+      y:
+        Math.round(
+          (data
+            .filter(
+              (obj) =>
+                obj.ANOCAT >= initialYear &&
+                obj.ANOCAT <= finalYear &&
+                obj[variable] &&
+                obj.RCIUpesoFenton == 0
+            )
+            .reduce(
+              (a, b) =>
+                a +
+                (b[variable][
+                  i == 0
+                    ? "sem40"
+                    : i == 1
+                    ? "mes3"
+                    : i == 2
+                    ? "mes6"
+                    : i == 3
+                    ? "mes9"
+                    : "mes12"
+                ] || 0),
+              0
+            ) /
+            data.filter(
+              (obj) =>
+                obj.ANOCAT >= initialYear &&
+                obj.ANOCAT <= finalYear &&
+                obj.RCIUpesoFenton == 0
+            ).length) *
+            100
+        ) / 100,
+    });
+  }
+
+  dataVis.data = [];
+
+  dataVis.height = 300;
+
+  dataVis.legend = {
+    horizontalAlign: "top",
+    verticalAlign: "top",
+    fontFamily: "arial",
+  };
+
+  dataVis.data.push({
+    type: "spline",
+    markerSize: 5,
+    connectNullData: true,
+    name: "con RCIU",
+    showInLegend: true,
+    dataPoints: dataPoints1,
+  });
+
+  dataVis.data.push({
+    type: "spline",
+    markerSize: 5,
+    connectNullData: true,
+    name: "sin RCIU",
+    showInLegend: true,
+    dataPoints: dataPoints2,
+  });
 
   handleResponse(dataVis, res);
 });
