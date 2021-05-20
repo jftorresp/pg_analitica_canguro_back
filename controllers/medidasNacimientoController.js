@@ -287,11 +287,11 @@ export const RCIUFreqGender = asyncHandler(async (req, res) => {
       }
 
       if (variables[i].value == "sexo") {
-        query.sexo = variables[i].filter.includes("niño")
-          ? 1
-          : variables[i].filter.includes("niña")
-          ? 2
-          : 3;
+        if (variables[i].filter.includes("niño")) {
+          query.sexo = 1;
+        } else if (variables[i].filter.includes("niña")) {
+          query.sexo = 2;
+        }
       }
     }
 
@@ -333,7 +333,13 @@ export const RCIUFreqGender = asyncHandler(async (req, res) => {
   dataVis.zoomEnabled = true;
   dataVis.zoomType = "xy";
 
-  if (variables.some((v) => (v.value = "sexo"))) {
+  if (
+    variables.some(
+      (v) =>
+        (v.value =
+          ("sexo" && v.filter.includes("niño")) || v.filter.includes("niña"))
+    )
+  ) {
     for (let i = 0; i < yearsInterval.length; i++) {
       dataPoints1.push({
         label: yearsInterval[i].toString(),
@@ -373,7 +379,13 @@ export const RCIUFreqGender = asyncHandler(async (req, res) => {
     verticalAlign: "top",
   };
 
-  if (variables.some((v) => (v.value = "sexo"))) {
+  if (
+    variables.some(
+      (v) =>
+        (v.value = "sexo" && v.filter.includes("niño")) ||
+        v.filter.includes("niña")
+    )
+  ) {
     dataVis.data.push({
       type: "stackedBar100",
       color: rciu == "true" ? "#70D6BC" : "#0E7FA6",
@@ -1060,7 +1072,6 @@ export const RCIUAFPromMedidaBebeNacer = asyncHandler(async (req, res) => {
       .lean();
   }
 
-  console.log(query);
   for (let index = initialYear; index < parseInt(finalYear) + 1; index++) {
     yearsInterval.push(index.toString());
   }

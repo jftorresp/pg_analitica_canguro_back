@@ -127,6 +127,7 @@ export const RCIUFreqDiasH = asyncHandler(async (req, res) => {
   var data = [];
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
   };
 
   const query = manageFilters(queryInitial, variables);
@@ -477,6 +478,7 @@ export const RCIUFreqEGEntrada = asyncHandler(async (req, res) => {
 
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
   };
 
   const query = manageFilters(queryInitial, variables);
@@ -611,6 +613,7 @@ export const RCIUPromPesoPMC = asyncHandler(async (req, res) => {
 
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
   };
 
   const query = manageFilters(queryInitial, variables);
@@ -719,6 +722,7 @@ export const RCIUOxiEntrada = asyncHandler(async (req, res) => {
 
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
     oxigenoentrada: 1,
   };
   const query = manageFilters(queryInitial, variables);
@@ -821,7 +825,10 @@ export const RCIULecheMaterna = asyncHandler(async (req, res) => {
   const variables = req.body.vars;
   const yearsInterval = [];
 
-  const queryInitial = { ANOCAT: { $gte: initialYear, $lte: finalYear } };
+  const queryInitial = {
+    ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
+  };
   const query = manageFilters(queryInitial, variables);
 
   const data = await medidasCrecimiento
@@ -982,7 +989,10 @@ export const RCIULecheMaternaTime = asyncHandler(async (req, res) => {
   const variables = req.body.vars;
   const yearsInterval = [];
 
-  const queryInitial = { ANOCAT: { $gte: initialYear, $lte: finalYear } };
+  const queryInitial = {
+    ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
+  };
   const query = manageFilters(queryInitial, variables);
 
   const data = await medidasCrecimiento
@@ -1127,7 +1137,10 @@ export const RCIUAbsLecheMaternaTime = asyncHandler(async (req, res) => {
   const variables = req.body.vars;
   const yearsInterval = [];
 
-  const queryInitial = { ANOCAT: { $gte: initialYear, $lte: finalYear } };
+  const queryInitial = {
+    ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
+  };
   const query = manageFilters(queryInitial, variables);
 
   const data = await medidasCrecimiento
@@ -1360,6 +1373,7 @@ export const parallelCoordsLecheMaterna = asyncHandler(async (req, res) => {
 
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
   };
   const query = manageFilters(queryInitial, variables);
 
@@ -1550,7 +1564,7 @@ export const getEtapasCrecimiento = asyncHandler(async (req, res) => {
   const etapas = [];
 
   etapas.push({ value: "GENERALES", label: "Variables generales" });
-  etapas.push({ value: "EMBARAZO", label: "Embarazo" });
+  etapas.push({ value: "PRIMER", label: "Primeros días de vida" });
   etapas.push({ value: "PMC", label: "Entrada Programa Canguro" });
   etapas.push({ value: "SEM40", label: "40 Semanas" });
   etapas.push({ value: "3M", label: "3 Meses" });
@@ -1595,7 +1609,7 @@ export const getVarsByEtapaCrecimiento = asyncHandler(async (req, res) => {
     });
   }
 
-  if (etapa.includes("EMBARAZO")) {
+  if (etapa.includes("PRIMER")) {
     vars.push({
       value: "TotalDiasHospitalizacion",
       label: "Días hospitalización",
@@ -1843,6 +1857,7 @@ export const RCIUNut4012 = asyncHandler(async (req, res) => {
 
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
   };
   const query = manageFilters(queryInitial, variables);
 
@@ -2264,6 +2279,7 @@ export const RCIUInfanibProm = asyncHandler(async (req, res) => {
 
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
   };
   const query = manageFilters(queryInitial, variables);
 
@@ -2473,6 +2489,7 @@ export const RCIUInfanibTime = asyncHandler(async (req, res) => {
 
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
   };
 
   const query = manageFilters(queryInitial, variables);
@@ -2725,6 +2742,7 @@ export const RCIUoftalmologia = asyncHandler(async (req, res) => {
 
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
   };
   const query = manageFilters(queryInitial, variables);
 
@@ -2810,6 +2828,7 @@ export const RCIUoptometria = asyncHandler(async (req, res) => {
 
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
   };
   const query = manageFilters(queryInitial, variables);
 
@@ -2892,6 +2911,7 @@ export const RCIUaudiometria = asyncHandler(async (req, res) => {
 
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
   };
   const query = manageFilters(queryInitial, variables);
 
@@ -2968,6 +2988,7 @@ export const RCIUPromMedidasGrowth = asyncHandler(async (req, res) => {
 
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
   };
   const query = manageFilters(queryInitial, variables);
 
@@ -3069,6 +3090,7 @@ export const RCIUMedidaAnio = asyncHandler(async (req, res) => {
 
   const queryInitial = {
     ANOCAT: { $gte: initialYear, $lte: finalYear },
+    edadgestacional: { $lt: 37 },
   };
 
   const query = manageFilters(queryInitial, variables);

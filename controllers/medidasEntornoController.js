@@ -818,7 +818,7 @@ export const RCIURFEstudiosMadre = asyncHandler(async (req, res) => {
         .select(["ANOCAT", "RCIUpesoFenton", "nivelmama"])
         .lean();
     }
-  } else {
+  } else if (estudio == "") {
     data = await medidasCrecimiento
       .find({
         ANOCAT: { $gte: initialYear, $lte: finalYear },
